@@ -21,9 +21,9 @@
 
 #include <Ethernet.h>
 // Portal & Cloud Server
-const IPAddress PortalServer(104,36,18,155); // forum.reefangel.com
-static byte MQTTServer[] = {104,36,18,211}; // cloud.reefangel.com
-const IPAddress WebWizardServer(162,213,37,72); // webwizard.reefangel.com
+const IPAddress PortalServer(191,101,233,157); // forum.reefangel.com
+static byte MQTTServer[] = {191,101,233,157}; // cloud.reefangel.com
+
 #define MQTTPORT 1883 // MQTT server port
 
 #if defined(ARDUINO_ARCH_SAMD)
