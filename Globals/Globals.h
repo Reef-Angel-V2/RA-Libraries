@@ -68,7 +68,7 @@ void receiveEventMaster(int howMany);
 #define ETH_WIZ5100
 #define LEAKDETECTOREXPANSION
 #define EMBEDDED_LEAK
-//#define RANET
+//#define RANETF
 #define NOTILT
 #define PWMEXPANSION
 //#define IOEXPANSION
@@ -339,8 +339,10 @@ const char NoIMCheck1[] PROGMEM = "Found";
 #define I2CEEPROM1          0x50
 #define I2CEEPROM2          0x54
 #define I2CHumidity			0x5c
+#define I2CCo2              0x62
 #define I2CClock            0x68
 #define i2cMux				0x70
+#define i2cOzone            0x73
 
 #ifdef __PLUS_SPECIAL_WIFI__
 #define WIFI_SERIAL Serial1
@@ -371,7 +373,10 @@ static SoftwareSerial RANetSerial(RANetRXPin,RANetTXPin);
 
 #endif // RANET
 
-
+//Ozone
+#define MODE_REGISTER 0x03
+#define MEASURE_MODE_AUTOMATIC 0x00
+#define DATA_REGISTER 0x09
 // I2C Images Addresses
 #define I2CEEPROM2_Main              0     //0-2999
 #define I2CEEPROM2_Feeding           9919  //3000-4999
@@ -729,6 +734,7 @@ When adding more variables, use the previous value plus 1 or 2
 #define MAX_X               128
 
 // DisplayedMenu IDs
+#define LOGIN_MENU         260
 #define DEFAULT_MENU        255
 #define EXCEED_TIMEOUT_MENU 254
 #define FEEDING_MODE		253
@@ -754,6 +760,8 @@ When adding more variables, use the previous value plus 1 or 2
 #define CUSTOM3_CALIBRATE_MENU	233
 #define CUSTOM2_CALIBRATE_MENU	232
 #define CUSTOM1_CALIBRATE_MENU	231
+
+
 
 #define DEFAULT_MENU_ITEM   0     // default menu item, first item on menu
 #define MAIN_MENU           0
@@ -1045,6 +1053,9 @@ typedef struct  {
   int Salinity;
   int ORP;
   int PHExp;
+  int Ozone;
+//  int co2ppm;
+//  int co2Humidity;
 } ParamsStruct;
 
 // Temperature units
@@ -1191,6 +1202,8 @@ typedef struct Compensation
 #define CustomVar5Label			110
 #define CustomVar6Label			111
 #define CustomVar7Label			112
+#define Ozonelabel              113
+#define Co2label                114
 
 
 // IsRelayPresent function from Don Edvalson
@@ -1287,6 +1300,26 @@ typedef struct Compensation
 #define MQTT_MEM_RAW	27
 #define MQTT_HUM 28
 #define MQTT_ALEXA	29
+#define MQTT_OZONE 30
+#define MQTT_CAlSAL 31
+#define MQTT_CALPH 32
+#define MQTT_CALPHE 33
+#define MQTT_CALORP 34
+#define MQTT_CALWL 35
+#define MQTT_CALWL1 36
+#define MQTT_CALWL2 37
+#define MQTT_CALWL3 38
+#define MQTT_CALWL4 39
+#define MQTT_CALCUS1 40
+#define MQTT_CALCUS2 41
+#define MQTT_CALCUS3 42
+#define MQTT_CALCUS4 43
+#define MQTT_CALCUS5 44
+#define MQTT_CALCUS6 45
+#define MQTT_CALCUS7 46
+#define MQTT_CALCUS8 47
+#define MQTT_CO2 48
+#define MQTT_CO2HUM 49
 
 
 // Cloud Expansion Bits ( CEM )
@@ -1301,6 +1334,8 @@ typedef struct Compensation
 
 // Cloud Expansion Bits ( CEM1 )
 #define CloudHumidityBit	1
+#define CloudOzoneBit 2
+#define CloudCo2Bit 3
 
 #if defined RA_STAR || defined CLOUD_WIFI
 void MQTTSubCallback(char* topic, byte* payload, unsigned int length);
@@ -1403,6 +1438,10 @@ const char LABEL_SD_INSERTED[] PROGMEM = "Inserted";
 const char LABEL_SD_NOT_FOUND[] PROGMEM = "Not Found";
 const char LABEL_LAST_BOOT[] PROGMEM = "Last Boot: ";
 
+// //Login Screen
+const char LABEL_lOGIN[] PROGMEM ="Login";
+const char LABEL_USERNAME[] PROGMEM="Username";
+const char LABEL_PASSWORD[] PROGMEM ="Password";
 
 // RF Modes
 const char RF_CONSTANT[] PROGMEM = "Constant";
@@ -1480,6 +1519,10 @@ const char MENU_BUTTON_PUMP2[] PROGMEM = "Pump 2";
 const char MENU_BUTTON_PUMP3[] PROGMEM = "Pump 3";
 const char MENU_BUTTON_DELAYED[] PROGMEM = "Delayed";
 const char MENU_BUTTON_START[] PROGMEM = "Start";
+const char MENU_BUTTON_CLOUD[] PROGMEM="Cloud";
+const char MENU_BUTTON_LOGIN[] PROGMEM ="Login";
+
+
 
 
 static PROGMEM const char * const menu_button_items1[] = {MENU_BUTTON_FEEDING, MENU_BUTTON_MODE, MENU_BUTTON_WATERCHANGE, MENU_BUTTON_MODE, MENU_BUTTON_TURN, MENU_BUTTON_LIGHTS, MENU_BUTTON_CHANGE, MENU_BUTTON_ORIENTATION, MENU_BUTTON_EXIT, MENU_BUTTON_MENU};
@@ -1487,7 +1530,7 @@ static PROGMEM const char * const menu_button_items2[] = {MENU_BUTTON_REBOOT, ME
 static PROGMEM const char * const menu_button_items3[] = {MENU_BUTTON_PH, MENU_BUTTON_CALIBRATION, MENU_BUTTON_SALINITY, MENU_BUTTON_CALIBRATION, MENU_BUTTON_ORP, MENU_BUTTON_CALIBRATION, MENU_BUTTON_PHE, MENU_BUTTON_CALIBRATION, MENU_BUTTON_EXIT, MENU_BUTTON_MENU};
 static PROGMEM const char * const menu_button_items4[] = {MENU_BUTTON_WL, MENU_BUTTON_CALIBRATION, MENU_BUTTON_WL1, MENU_BUTTON_CALIBRATION, MENU_BUTTON_WL2, MENU_BUTTON_CALIBRATION, MENU_BUTTON_WL3, MENU_BUTTON_CALIBRATION, MENU_BUTTON_WL4, MENU_BUTTON_CALIBRATION};
 static PROGMEM const char * const menu_button_items5[] = {MENU_BUTTON_CEXP1, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP2, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP3, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP4, MENU_BUTTON_CALIBRATION, MENU_BUTTON_EXIT, MENU_BUTTON_MENU};
-static PROGMEM const char * const menu_button_items6[] = {MENU_BUTTON_CEXP5, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP6, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP7, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP8, MENU_BUTTON_CALIBRATION, MENU_BUTTON_WL4, MENU_BUTTON_CALIBRATION};
+static PROGMEM const char * const menu_button_items6[] = {MENU_BUTTON_CEXP5, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP6, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP7, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CEXP8, MENU_BUTTON_CALIBRATION, MENU_BUTTON_CLOUD, MENU_BUTTON_LOGIN};
 
 //static PROGMEM const char *menu_button_items3[] = {MENU_BUTTON_LIGHT, MENU_BUTTON_SCHEDULE, MENU_BUTTON_HEATER, MENU_BUTTON_TEMPERATURE, MENU_BUTTON_FAN, MENU_BUTTON_TEMPERATURE, MENU_BUTTON_OVERHEAT, MENU_BUTTON_TEMPERATURE, MENU_BUTTON_CO2, MENU_BUTTON_CONTROL, MENU_BUTTON_PH, MENU_BUTTON_CONTROL};
 //static PROGMEM const char *menu_button_items4[] = {MENU_BUTTON_WM, MENU_BUTTON_CYCLE, MENU_BUTTON_ATO, MENU_BUTTON_TIMEOUT, MENU_BUTTON_DOSING, MENU_BUTTON_PUMP1, MENU_BUTTON_DOSING, MENU_BUTTON_PUMP2, MENU_BUTTON_DOSING, MENU_BUTTON_PUMP3, MENU_BUTTON_DELAYED, MENU_BUTTON_START};
@@ -1544,36 +1587,49 @@ static PROGMEM const char * const menu_button_items6[] = {MENU_BUTTON_CEXP5, MEN
 #endif  // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 
 // EM1 Bits
+
+// HUMIDITYEXPANSION
 #ifdef HUMIDITYEXPANSION
 	#define HUMbit		1
 #else
 	#define HUMbit		0
-#endif  // HUMIDITYEXPANSION
-
+#endif  
+// DCPUMPCONTROL
 #ifdef DCPUMPCONTROL
 	#define DCPumpbit	2
 #else
 	#define DCPumpbit	0
-#endif  // DCPUMPCONTROL
-
+#endif  
+// LEAKDETECTOREXPANSION
 #ifdef LEAKDETECTOREXPANSION
 	#define Leakbit		4
 #else
 	#define Leakbit		0
-#endif  // LEAKDETECTOREXPANSION
-
+#endif  
+ // PAREXPANSION
 #ifdef PAREXPANSION
 	#define PARbit		8
 #else
 	#define PARbit		0
-#endif  // PAREXPANSION
+#endif 
+ // SIXTEENCHPWMEXPANSION
 #ifdef SIXTEENCHPWMEXPANSION
 	#define SCPWMbit		16
 #else
 	#define SCPWMbit		0
-#endif  // SIXTEENCHPWMEXPANSION
-
-
+#endif 
+//OZONEEXPANSION
+#ifdef OZONEEXPANSION
+    #define Ozonebit 32
+#else 
+	#define Ozonebit 0
+#endif
+//Co2 expansion
+#ifdef CO2EXPANSION
+    #define Co2bit 64
+#else 
+	#define Co2bit 0
+#endif
 // Global macros
 #define SIZE(array) (sizeof(array) / sizeof(*array))
 // color definition
