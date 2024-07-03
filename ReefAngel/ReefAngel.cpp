@@ -180,7 +180,7 @@ void ReefAngelClass::Init()
 
 #if defined wifi || defined I2CMASTER || defined ETH_WIZ5100
 	EM = PWMEbit + RFEbit + AIbit + Salbit + ORPbit + IObit + PHbit + WLbit;
-	EM1 = HUMbit + DCPumpbit + Leakbit + PARbit + SCPWMbit;
+	EM1 = HUMbit + DCPumpbit + Leakbit + PARbit + SCPWMbit + Ozonebit + Co2bit;
 
 #ifdef RelayExp
 	for (byte a=0;a<InstalledRelayExpansionModules;a++)
@@ -819,6 +819,30 @@ void ReefAngelClass::Refresh()
 		cbi(PORTH,2); // Turn on exp bus power
 	}
 #endif // BUSCHECK
+#if defined OZONEEXPANSION
+ 
+    // Check a condition before reading the ozone level
+int OzoneLevel = Ozone.readOzoneLevel();
+if (bitRead(ReefAngel.CEM1, CloudOzoneBit) == 0) 
+        Params.Ozone = OzoneLevel; // Update the system parameter
+        
+        // Refresh screen or update display
+        RefreshScreen();
+#endif
+#if defined CO2EXPANSION
+   
+if (bitRead(ReefAngel.CEM1, CloudCo2Bit) == 0) {
+    // Ensure a measurement is read before getting the levels
+	
+    if (Co2.readMeasurement()) { 
+         Co2.getCO2Level();
+        Co2.getHumidity();
+		       
+        RefreshScreen(); // Assuming this function updates the display based on the new readings
+    }
+}    
+
+#endif  // CO2EXPANSION
 }
 
 void ReefAngelClass::Reboot()
@@ -2297,6 +2321,9 @@ void receiveEvent(int howMany) {
 					ReefAngel.CustomVar[7]=d[2];
 					break;
 				// Don't go over 99. The max array is set to 100
+
+
+
 				}
 			}
 		}
@@ -2416,7 +2443,9 @@ void ReefAngelClass::UpdateTouchDisplay()
 		// Don't go over 99. The max array is set to 100
 
 #endif //CUSTOM_VARIABLES
-
+      MasterWrite(Params.Ozone, 95);
+	  MasterWrite(Co2.co2ppm,96);
+	  MasterWrite(Co2.co2Humidity, 97);
 	}
 	if (DisplayedMenu==FEEDING_MODE)
 	{
@@ -2714,6 +2743,31 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 				else if (strcmp("v", mqtt_sub)==0) mqtt_type=MQTT_VERSION;
 				else if (strcmp("mr", mqtt_sub)==0) mqtt_type=MQTT_MEM_RAW;
 				else if (strcmp("avs", mqtt_sub)==0) mqtt_type=MQTT_ALEXA;
+				//for ozone cloud update
+				else if (strcmp("ozo", mqtt_sub)==0) mqtt_type=MQTT_OZONE;
+				else if (strcmp("co2", mqtt_sub)==0) mqtt_type=MQTT_CO2;
+				else if (strcmp("co2hum", mqtt_sub)==0) mqtt_type=MQTT_CO2HUM;
+				// co2 cloud update 
+				//for display calibration screen 
+				else if (strcmp("calph", mqtt_sub)==0) mqtt_type=MQTT_CALPH;
+				else if (strcmp("calorp", mqtt_sub)==0) mqtt_type=MQTT_CALORP;
+				else if (strcmp("calsal", mqtt_sub)==0) mqtt_type=MQTT_CAlSAL;
+                else if (strcmp("calphe", mqtt_sub)==0) mqtt_type=MQTT_CALPHE;
+				else if (strcmp("calwl", mqtt_sub)==0) mqtt_type=MQTT_CALWL;
+				else if (strcmp("calwl1", mqtt_sub)==0) mqtt_type=MQTT_CALWL1;
+				else if (strcmp("calwl2", mqtt_sub)==0) mqtt_type=MQTT_CALWL2;
+				else if (strcmp("calwl3", mqtt_sub)==0) mqtt_type=MQTT_CALWL3;
+				else if (strcmp("calwl4", mqtt_sub)==0) mqtt_type=MQTT_CALWL4;
+				//display custom Calibration screen
+				else if (strcmp("calcus1", mqtt_sub)==0) mqtt_type=MQTT_CALCUS1;
+				else if (strcmp("calcus2", mqtt_sub)==0) mqtt_type=MQTT_CALCUS2;
+				else if (strcmp("calcus3", mqtt_sub)==0) mqtt_type=MQTT_CALCUS3;
+				else if (strcmp("calcus4", mqtt_sub)==0) mqtt_type=MQTT_CALCUS4;
+				else if (strcmp("calcus5", mqtt_sub)==0) mqtt_type=MQTT_CALCUS5;
+				else if (strcmp("calcus6", mqtt_sub)==0) mqtt_type=MQTT_CALCUS6;
+				else if (strcmp("calcus7", mqtt_sub)==0) mqtt_type=MQTT_CALCUS7;
+				else if (strcmp("calcus8", mqtt_sub)==0) mqtt_type=MQTT_CALCUS8;
+				
 			}
 		}
 		else
@@ -2748,7 +2802,8 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 	Serial.println(F(" "));
 #endif
 	switch (mqtt_type)
-	{
+
+	{ 
 		case MQTT_NONE:
 			break;
 		case MQTT_T:
@@ -2882,6 +2937,30 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 			break;
 		}
 #endif // PAREXPANSION
+#ifdef OZONEEXPANSION
+		case MQTT_OZONE:
+		{
+			ReefAngel.Params.Ozone=mqtt_val;
+			bitSet(ReefAngel.CEM1,CloudOzoneBit);
+			break;
+		} 
+#endif //OzoneExpansion   
+#ifdef CO2EXPANSION
+		case MQTT_CO2:
+		{
+			ReefAngel.Co2.co2=mqtt_val;
+			bitSet(ReefAngel.CEM1,CloudCo2Bit);
+			break;
+		} 
+#endif //CO2EXPANSION 
+#ifdef CO2EXPANSION
+		case MQTT_CO2HUM:
+		{
+			ReefAngel.Co2.co2Humidity=mqtt_val;
+			bitSet(ReefAngel.CEM1,CloudCo2Bit);
+			break;
+		} 
+#endif //CO2EXPANSION 
 #ifdef HUMIDITYEXPANSION
 		case MQTT_HUM:
 		{
@@ -2980,7 +3059,7 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 			ReefAngel.Network.CloudPublish(buffer);
 #endif
 #ifdef CLOUD_WIFI
-			Serial.print(F("CLOUD:"));
+			Serial.print(F("CeOUD:"));
 			Serial.println(buffer);
 #endif
 			break;
@@ -3021,7 +3100,254 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 			ReefAngel.OldParamArrayByte[14]=ReefAngel.OldParamArrayByte[14]+1;
 			break;
 		}
-	}
+#ifdef RA_STAR		
+case MQTT_CALPH:
+{
+  // Display PH Calibration Menu
+  if (mqtt_val == 1) {  // mqtt_val 1 indicates a request to start calibration
+	 ReefAngel.ResetScreenSaver();
+	 ReefAngel.ProcessTouch();
+     ReefAngel.SetupTouchCalibratePH();
+  } else if (mqtt_val == 2) { 
+      ReefAngel.simulateOkPress = true;
+  } else if (mqtt_val == 0) {
+	  ReefAngel.MainScreen();
+  }
+  break;
+}
+#ifdef ORPEXPANSION	// Orp Calibration 	
+    case MQTT_CALORP:
+	    {
+        // Display ORP Calibration Menu
+			if (mqtt_val==1)
+			{ 
+			  ReefAngel.ResetScreenSaver();
+			  ReefAngel.ProcessTouch();
+			  ReefAngel.SetupTouchCalibrateORP(); 
+            } else if (mqtt_val == 2) { 
+              ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+	          ReefAngel.ExitMenu();
+            }
+		  break;
+		}
+#endif
+#ifdef SALINITYEXPANSION
+    case MQTT_CAlSAL:
+	   {
+        // Display Sal Calibration Menu
+			if (mqtt_val==1)
+			{  
+	           ReefAngel.ResetScreenSaver();
+			   ReefAngel.ProcessTouch();
+			   ReefAngel.SetupTouchCalibrateSal(); 
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+	           ReefAngel.MainScreen();
+            }
+		  break;
+		}
+#endif	
+#ifdef PHEXPANSION
+    case MQTT_CALPHE:
+	   {
+        // Display PH expansion Calibration Menu
+			if (mqtt_val==1)
+			{   
+	           ReefAngel.ResetScreenSaver();
+			   ReefAngel.ProcessTouch();
+				ReefAngel.SetupTouchCalibratePHExp(); 
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+	           ReefAngel.MainScreen();
+            }
+		  break;
+		}
+#endif
+#if defined WATERLEVELEXPANSION || defined MULTIWATERLEVELEXPANSION		
+       case MQTT_CALWL:
+	   {
+        // Display ORP Calibration Menu
+			if (mqtt_val==1)
+			{
+	           ReefAngel.ResetScreenSaver();
+			   ReefAngel.ProcessTouch();
+				ReefAngel.SetupTouchCalibrateWL(0); 
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+	           ReefAngel.MainScreen();
+            }
+		  break;
+		}
+		case MQTT_CALWL1:
+		   {
+        // Display ORP Calibration Menu
+			if (mqtt_val==1)
+			{   ReefAngel.ResetScreenSaver();
+			    ReefAngel.ProcessTouch();
+				ReefAngel.SetupTouchCalibrateWL(1); 
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {	
+	           ReefAngel.MainScreen();
+            }
+		  break;
+		}
+		case MQTT_CALWL2:
+		   {
+        // Display ORP Calibration Menu
+			if (mqtt_val==1)
+			{   ReefAngel.ResetScreenSaver();
+			    ReefAngel.ProcessTouch();
+				ReefAngel.SetupTouchCalibrateWL(2); 
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+	           ReefAngel.MainScreen();
+            }
+		  break;
+		}
+		case MQTT_CALWL3:
+		   {
+        // Display ORP Calibration Menu
+			if (mqtt_val==1)
+			{   ReefAngel.ResetScreenSaver();
+			    ReefAngel.ProcessTouch();
+				ReefAngel.SetupTouchCalibrateWL(3); 
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+	           ReefAngel.MainScreen();
+            }
+		  break;
+		}
+        case MQTT_CALWL4:
+		   {
+        // Display ORP Calibration Menu
+			if (mqtt_val==1)
+			{   ReefAngel.ResetScreenSaver();
+			    ReefAngel.ProcessTouch();
+				ReefAngel.SetupTouchCalibrateWL(4); 
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+	           ReefAngel.MainScreen();
+            }
+		  break;
+		}
+#endif		
+    // Handle custom calibration screens
+    case MQTT_CALCUS1:
+	  {
+		if (mqtt_val==1)
+		{   ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(0);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+                ReefAngel.MainScreen();
+            }
+		break;
+	  }
+	case MQTT_CALCUS2:
+       {
+		if (mqtt_val==1)
+		{   ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(1);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+			   ReefAngel.MainScreen();
+            }
+		break;
+	  }
+	case MQTT_CALCUS3:
+ {
+		if (mqtt_val==1)
+		{   ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(2);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+			   ReefAngel.MainScreen();
+            }
+		break;
+	  }
+	case MQTT_CALCUS4:
+         {
+		if (mqtt_val==1)
+		{   ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(3);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+			   ReefAngel.MainScreen();
+            }
+		break;
+	  }
+	case MQTT_CALCUS5:
+        {
+		if (mqtt_val==1)
+		    { ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(4);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+			   ReefAngel.MainScreen();
+            }
+		break;
+	  }
+	case MQTT_CALCUS6:
+        {
+		if (mqtt_val==1)
+		   {ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(5);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+			   ReefAngel.MainScreen();
+            }
+		break;
+	  }
+	case MQTT_CALCUS7:
+         {
+		if (mqtt_val==1)
+		   {ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(6);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+			   ReefAngel.MainScreen();
+            }
+		break;
+	  }	
+	case MQTT_CALCUS8:
+         {
+		if (mqtt_val==1)
+		    {
+			ReefAngel.ResetScreenSaver();
+			ReefAngel.ProcessTouch();
+			ReefAngel.SetupTouchCalibrateCustom(7);
+            } else if (mqtt_val == 2) { 
+               ReefAngel.simulateOkPress = true;
+            } else if (mqtt_val == 0) {
+			   ReefAngel.MainScreen();
+            }	
+		break;			    
+	}    
+#endif	
+    
+   }
 }
 #endif // RA_STAR
 void ReefAngelClass::CheckOverride(int option)

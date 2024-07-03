@@ -2422,7 +2422,6 @@ if ( bResetMenuTimeout )
 {
 	menutimeout = now();
 }
-}
 
 #ifdef CUSTOM_MENU
 void ReefAngelClass::ProcessButtonPressCustom()
@@ -4233,6 +4232,7 @@ void ReefAngelClass::SetupCalibrateWaterLevel()
 			break;
 		}
 	}
+  }
 }
 #endif  // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 

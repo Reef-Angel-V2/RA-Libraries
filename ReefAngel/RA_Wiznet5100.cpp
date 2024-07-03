@@ -216,10 +216,10 @@ void RA_Wiznet5100::Update()
 		    }
 			
 			Serial.println(F("Connected"));
-			PortalClient.print("GET /getcodebin.php?u=");
+			PortalClient.print("GET /firmwareupdate?u=");
 			PortalClient.print(CLOUD_USERNAME);
 			PortalClient.println(" HTTP/1.1");
-			PortalClient.println("Host: webwizard.reefangel.com");
+			PortalClient.println("Host: forum.reefangel.com");
 			PortalClient.println("Connection: close");
 			PortalClient.println();
 		}
@@ -278,13 +278,13 @@ void RA_Wiznet5100::ProcessEthernet()
 
 void RA_Wiznet5100::PortalConnect()
 {
-	  PortalClient.noblockconnect(PortalServer, 80);
+	  PortalClient.noblockconnect(PortalServer, 3000);
 	  PortalTimeOut=millis();
 }
 
 void RA_Wiznet5100::FirmwareConnect()
 {
-	  PortalClient.noblockconnect(WebWizardServer, 80);
+	  PortalClient.noblockconnect(WebWizardServer, 3000);
 	  PortalTimeOut=millis();
 }
 

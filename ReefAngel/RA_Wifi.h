@@ -73,6 +73,12 @@ const char XML_HUM[] PROGMEM = "<HUM>";
 const char XML_HUM_END[] PROGMEM = "</HUM>";
 const char XML_PAR[] PROGMEM = "<PAR>";
 const char XML_PAR_END[] PROGMEM = "</PAR>";
+const char XML_OZO[] PROGMEM = "<OZO>";
+const char XML_OZO_END[] PROGMEM = "</OZO>";
+const char XML_CO2[] PROGMEM = "<CO2>";
+const char XML_CO2_END[] PROGMEM = "</CO2>";
+const char XML_CO2HHUM[] PROGMEM = "<C02HUM>";
+const char XML_CO2HUM_END[] PROGMEM = "</CO2HUM>";
 const char XML_DCM[] PROGMEM = "<DCM>";
 const char XML_DCM_END[] PROGMEM = "</DCM><DCS>";
 const char XML_DCS_END[] PROGMEM = "</DCS><DCD>";
@@ -137,7 +143,7 @@ const char XML_MODE_CLOSE[] PROGMEM = "</MODE>";
 const char XML_OK[] PROGMEM = "OK";
 const char XML_ERR[] PROGMEM = "ERR";
 
-const char SERVER_HEADER1[] PROGMEM = "HTTP/1.1 200 OK\r\nServer: ReefAngel\r\nCache-Control: no-store, no-cache, must-revalidate\r\nPragma: no-cache\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET\r\nConnection: close\r\nContent-Type: text/";
+const char SERVER_HEADER1[] PROGMEM = "HTTP/1.1 200 OK\r\nServer: reefangel.com\r\nCache-Control: no-store, no-cache, must-revalidate\r\nPragma: no-cache\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: GET\r\nConnection: close\r\nContent-Type: text/";
 const char SERVER_HEADER2[] PROGMEM = "\r\nContent-Length: ";
 const char SERVER_HEADER3[] PROGMEM = "\r\n\r\n";
 const char SERVER_DENY[] PROGMEM = "HTTP/1.1 401 Access Denied\r\nWWW-Authenticate: Basic realm=Reef Angel Controller\r\nContent-Length: 0\r\n";
@@ -202,6 +208,9 @@ const char JSON_WL3[] PROGMEM = "WL3";
 const char JSON_WL4[] PROGMEM = "WL4";
 const char JSON_HUM[] PROGMEM = "HUM";
 const char JSON_PAR[] PROGMEM = "PAR";
+const char JSON_OZO[] PROGMEM = "OZO";
+const char JSON_CO2[] PROGMEM = "CO2";
+const char JSON_CO2HUM[] PROGMEM = "CO2HUM";
 const char JSON_DCM[] PROGMEM = "DCM";
 const char JSON_DCS[] PROGMEM = "DCS";
 const char JSON_DCD[] PROGMEM = "DCD";
@@ -304,9 +313,9 @@ const char JSON_CLOSE[] PROGMEM = "}}";
 //const char SERVER_RA[] PROGMEM = "<script language='javascript' src='http://www.reefangel.com/wifi/ra1.js'></script>";
 const char SERVER_RA[] PROGMEM = "<object type=text/html data=http://www.reefangel.com/wifi3/content.html width=100% height=98%></object>";
 const char EncodingChars[] PROGMEM = {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
-const char BannerGET[] PROGMEM = "GET /status/submitp.aspx?t1=";
+const char BannerGET[] PROGMEM = "GET /status/submitp?t1=";
 const char BannerHTTP11[] PROGMEM = " HTTP/1.1\r\n";
-const char BannerHost[] PROGMEM = "Host: forum.reefangel.com\r\n";
+const char BannerHost[] PROGMEM = "Host: reefangel.com\r\n";
 const char BannerConnectionClose[] PROGMEM = "Connection: close\r\n";
 const char BannerT2[] PROGMEM = "&t2=";
 const char BannerT3[] PROGMEM = "&t3=";
@@ -365,6 +374,10 @@ const char BannerPWMA2[] PROGMEM = "&pwma2=";
 const char BannerPWMD2[] PROGMEM = "&pwmd2=";
 const char BannerPWMA2O[] PROGMEM = "&pwma2o=";
 const char BannerPWMD2O[] PROGMEM = "&pwmd2o=";
+const char BannerOzone[] PROGMEM = "&ozo=";
+const char BannerCo2[] PROGMEM = "&Co2=";
+const char BannerCo2Hum[] PROGMEM = "&Co2Hum=";
+
 
 //const char probe1_tag[] PROGMEM = "t1n";
 //const char probe2_tag[] PROGMEM = "t2n";
@@ -494,9 +507,9 @@ const char BannerPWMD2O[] PROGMEM = "&pwmd2o=";
 // Moved from Globals.h to break circular dependency
 #if defined wifi || defined CLOUD_WIFI || defined ETH_WIZ5100 || defined(__AVR_ATmega2560__) 
 #define NumParamByte	94
-#define NumParamInt		19
+#define NumParamInt		22
 static PROGMEM const char * const param_items_byte[] = {JSON_ATOLOW, JSON_ATOHIGH, JSON_EM, JSON_EM1, JSON_REM, JSON_BOARDID, JSON_ALERTFLAG, JSON_STATUSFLAG, JSON_PWMD, JSON_PWMA, JSON_PWMDO, JSON_PWMAO, JSON_R1, JSON_ROFF1, JSON_RON1, JSON_R2, JSON_ROFF2, JSON_RON2, JSON_R3, JSON_ROFF3, JSON_RON3, JSON_R4, JSON_ROFF4, JSON_RON4, JSON_R5, JSON_ROFF5, JSON_RON5, JSON_R6, JSON_ROFF6, JSON_RON6, JSON_R7, JSON_ROFF7, JSON_RON7, JSON_R8, JSON_ROFF8, JSON_RON8, JSON_ALARM, JSON_PWMD2, JSON_PWMA2, JSON_PWMD2O, JSON_PWMA2O, JSON_WL, JSON_WL1, JSON_WL2, JSON_WL3, JSON_WL4, JSON_HUM, JSON_DCM, JSON_DCS, JSON_DCD, JSON_DCT, JSON_PWME0, JSON_PWME1, JSON_PWME2, JSON_PWME3, JSON_PWME4, JSON_PWME5, JSON_PWME0O, JSON_PWME1O, JSON_PWME2O, JSON_PWME3O, JSON_PWME4O, JSON_PWME5O, JSON_AIW, JSON_AIB, JSON_AIRB, JSON_RFM, JSON_RFS, JSON_RFD, JSON_RFW, JSON_RFRB, JSON_RFR, JSON_RFG, JSON_RFB, JSON_RFI, JSON_RFWO, JSON_RFRBO, JSON_RFRO, JSON_RFGO, JSON_RFBO, JSON_RFIO, JSON_IO, JSON_LEAK, JSON_C0, JSON_C1, JSON_C2, JSON_C3, JSON_C4, JSON_C5, JSON_C6, JSON_C7, JSON_R, JSON_ROFF, JSON_RON,};
-static PROGMEM const char * const param_items_int[] = {JSON_T1, JSON_T2, JSON_T3, JSON_PH, JSON_T4, JSON_T5, JSON_T6, JSON_ORP, JSON_SAL, JSON_PHEXP, JSON_PAR, JSON_CEXP0, JSON_CEXP1, JSON_CEXP2, JSON_CEXP3, JSON_CEXP4, JSON_CEXP5, JSON_CEXP6, JSON_CEXP7};
+static PROGMEM const char * const param_items_int[] = {JSON_T1, JSON_T2, JSON_T3, JSON_PH, JSON_T4, JSON_T5, JSON_T6, JSON_ORP, JSON_SAL, JSON_PHEXP, JSON_PAR, JSON_OZO, JSON_CO2, JSON_CO2HUM, JSON_CEXP0, JSON_CEXP1, JSON_CEXP2, JSON_CEXP3, JSON_CEXP4, JSON_CEXP5, JSON_CEXP6, JSON_CEXP7};
 #endif //wifi 
 
 

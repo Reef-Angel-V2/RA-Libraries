@@ -408,6 +408,17 @@ void RA_Wifi::ProcessHTTP()
 			//<PAR></PAR>
 			s += intlength(ReefAngel.PAR.GetLevel());
 #endif  // PAREXPANSION
+#ifdef OZONEEXPANSION
+			s += 11;
+			//<OZO></OZO>
+			s += intlength(ReefAngel.Params.Ozone);
+#endif//OZONEEXPANSION
+#ifdef CO2EXPANSION
+    s += 28;  // Adding fixed length for <CO2></CO2><CO2HUM></CO2HUM> tags
+    // Add the length of the integer values as string
+    s += intlength(ReefAngel.Co2.getCO2Level());
+    s += intlength(ReefAngel.Co2.getHumidity());
+#endif // CO2EXPANSION
 #ifdef DCPUMPCONTROL
 			s += 44;
 			//<DCM></DCM><DCS></DCS><DCD></DCD><DCT></DCT>
@@ -1271,6 +1282,20 @@ void RA_Wifi::SendXMLData(bool fAtoLog /*= false*/)
 	print(ReefAngel.PAR.GetLevel(), DEC);
 	PROGMEMprint(XML_PAR_END);
 #endif  // PAREXPANSION
+#ifdef ORPEXPANSION
+	PROGMEMprint(XML_OZO);
+	print(ReefAngel.Params.Ozone, DEC);
+	PROGMEMprint(XML_OZO_END);
+#endif  // OZONEEXPANSION
+#ifdef CO2EXPANSION
+	PROGMEMprint(XML_CO2);
+	print(ReefAngel.Co2.getCO2Level(), DEC);
+	PROGMEMprint(XML_CO2_END);
+	PROGMEMprint(XML_CO2HHUM);
+	print(ReefAngel.Co2.getHumidity(),DEC);
+	PROGMEMprint(XML_CO2HUM_END);
+
+#endif  // CO2EXPANSION
 #ifdef DCPUMPCONTROL
 	PROGMEMprint(XML_DCM);
 	print(ReefAngel.DCPump.Mode, DEC);
@@ -1982,6 +2007,16 @@ void RA_Wifi::SendPortal(char *username, char*key)
   PROGMEMprint(BannerHumidity);
   print(ReefAngel.Humidity.GetLevel(), DEC);
 #endif  // HUMIDITYEXPANSION
+#ifdef OZONEEXPANSION
+  PROGMEMprint(BannerOzone);
+  print(ReefAngel.Params.Ozone, DEC);
+#endif //OZONEEXPANSION
+#ifdef CO2EXPANSION
+  PROGMEMprint(BannerCo2);
+  print(ReefAngel.Co2.getCO2Level(), DEC);
+  PROGMEMprint(BannerCo2Hum);
+  print(ReefAngel.Co2.getHumidity(), DEC);
+#endif //CO2
 #ifdef PAREXPANSION
   PROGMEMprint(BannerPAR);
   print(ReefAngel.PAR.GetLevel(), DEC);

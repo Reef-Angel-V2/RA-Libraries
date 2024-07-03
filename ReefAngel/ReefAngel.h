@@ -73,6 +73,12 @@
 #if defined PAREXPANSION
 #include <PAR.h>
 #endif  // defined PAREXPANSION
+#if defined OZONEEXPANSION
+#include <Ozone.h>
+#endif //Defined Ozone Expansion
+#if defined CO2EXPANSION
+#include <Co2.h>
+#endif //Defined Co2 Expansion
 #include <RA_CustomLabels.h>
 #include <RA_CustomSettings.h>
 
@@ -105,7 +111,7 @@ public:
 	bool BusLocked;
 	unsigned long LastFeedingMode;
 	unsigned long LastWaterChangeMode;
-
+    bool simulateOkPress;
 	ReefAngelClass();
 
 #ifdef RA_STANDARD
@@ -180,6 +186,13 @@ public:
 #if defined PAREXPANSION
 	PARClass PAR;
 #endif  // defined PAREXPANSION
+// Add a preprocessor directive for the ozone sensor functionality
+#if defined OZONEEXPANSION
+    OzoneClass Ozone; // Create an instance of the OzoneClass
+#endif  // OZONEEXPANSION
+#if defined CO2EXPANSION
+  Co2Sensor Co2; // Correctly create an instance of the Co2Sensor class
+#endif // Co2Expansion
 	/*
 	Timers:
 	0 - Feeding Mode timer
@@ -233,6 +246,8 @@ public:
 	Bit 2 - Leakbit
 	Bit 3 - PARbit
 	Bit 4 - SCPWMbit
+	Bit 5 - Ozonebit
+	Bit 6 - Co2Bit
 	 */
 
 #ifdef RelayExp
@@ -366,39 +381,50 @@ public:
 #endif
 	&Relay.RelayData,&Relay.RelayMaskOff,&Relay.RelayMaskOn
 	};
-	
-	int* ParamArrayInt[NumParamInt] = {&Params.Temp[T1_PROBE],&Params.Temp[T2_PROBE],&Params.Temp[T3_PROBE],&Params.PH,
+
+
+int* ParamArrayInt[NumParamInt] = {
+    &Params.Temp[T1_PROBE], &Params.Temp[T2_PROBE], &Params.Temp[T3_PROBE], &Params.PH,
 #ifdef EXTRA_TEMP_PROBES
-	&Params.Temp[T4_PROBE],&Params.Temp[T5_PROBE],&Params.Temp[T6_PROBE],
+    &Params.Temp[T4_PROBE], &Params.Temp[T5_PROBE], &Params.Temp[T6_PROBE],
 #else
-	&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,
+    &CloudDummyInt, &CloudDummyInt, &CloudDummyInt,
 #endif
 #ifdef ORPEXPANSION
-	&Params.ORP,
+    &Params.ORP,
 #else
-	&CloudDummyInt,
+    &CloudDummyInt,
 #endif
 #ifdef SALINITYEXPANSION
-	&Params.Salinity,
+    &Params.Salinity,
 #else
-	&CloudDummyInt,
+    &CloudDummyInt,
 #endif
 #ifdef PHEXPANSION
-	&Params.PHExp,
+    &Params.PHExp,
 #else
-	&CloudDummyInt,
+    &CloudDummyInt,
 #endif
 #ifdef PAREXPANSION
-	&PAR.level,
+    &PAR.level,
 #else
-	&CloudDummyInt,
+    &CloudDummyInt,
+#endif
+#ifdef OZONEEXPANSION
+    &Params.Ozone,
+#else
+    &CloudDummyInt,
+#endif
+#ifdef CO2EXPANSION
+  &Co2.co2, &Co2.co2Humidity,
+#else 
+  &CloudDummyInt, &CloudDummyInt,
 #endif
 #ifdef RA_STAR
-	&CustomExpansionValue[0],&CustomExpansionValue[1],&CustomExpansionValue[2],&CustomExpansionValue[3],&CustomExpansionValue[4],&CustomExpansionValue[5],&CustomExpansionValue[6],&CustomExpansionValue[7]
-#else
-	&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt
+    &CustomExpansionValue[0], &CustomExpansionValue[1], &CustomExpansionValue[2], &CustomExpansionValue[3],
+    &CustomExpansionValue[4], &CustomExpansionValue[5], &CustomExpansionValue[6], &CustomExpansionValue[7]
 #endif
-	};
+};
 	byte OldParamArrayByte[NumParamByte];
 	int OldParamArrayInt[NumParamInt];
 #endif // wifi	
@@ -425,7 +451,8 @@ public:
 	void inline AddIOExpansion() {};
 	void inline AddLeakDetectorExpansion() {};
 	void inline AddPWMExpansion() {};
-
+	void inline AddOzoneExpansion() {};
+	void inline AddCo2Expansion() {};
 	void inline Use2014Screen() {};
 	void inline AddStandardMenu() {};
 	void inline AddWifi() {};

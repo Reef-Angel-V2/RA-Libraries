@@ -104,9 +104,18 @@ class SliderClass
 		int inline GetCurrent() { return current; };
 		int inline GetOverrideID() { return overrideid; };
 		void inline SetColor(int value) { color=value; };
-		void inline SetLabel(char *value) { str=value; };
-		void inline SetLabel(String value) { char buff[value.length()+2]; value.toCharArray(buff, value.length()+1); strcpy(str,buff); };
-		void inline SetLabelP(const char *value) { char buff[16]; byte index=0; while( buff[index++] = pgm_read_byte(value++)); strcpy(str,buff); };
+		void inline SetLabel(char *value) {strncpy(label, value, sizeof(label) - 1);label[sizeof(label) - 1] = '\0';}
+        void inline SetLabel(String value) {if (value.length() < sizeof(label)) {value.toCharArray(label, sizeof(label));} else {
+            value.toCharArray(label, sizeof(label));
+            label[sizeof(label) - 1] = '\0';
+        }
+    }
+
+    void inline SetLabelP(const char *value) {
+        strncpy_P(label, value, sizeof(label) - 1);
+        label[sizeof(label) - 1] = '\0';
+       // Serial.println(label);
+    }
 		void DrawMarker();
 		void Show();
 		void Hide();
@@ -117,7 +126,7 @@ class SliderClass
 		int color, x1, y1, textcolor;
 		int min,max,current;
 		byte overrideid;
-		char *str;
+		char label[16];
 		boolean visible;
 		boolean NeedsRedraw;
 	

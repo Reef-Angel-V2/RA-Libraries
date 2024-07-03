@@ -106,7 +106,7 @@ menu_button_functions6[0] = &ReefAngelClass::SetupTouchCalibrateCustom5;
 menu_button_functions6[1] = &ReefAngelClass::SetupTouchCalibrateCustom6;
 menu_button_functions6[2] = &ReefAngelClass::SetupTouchCalibrateCustom7;
 menu_button_functions6[3] = &ReefAngelClass::SetupTouchCalibrateCustom8;
-menu_button_functions6[4] = &ReefAngelClass::SetupTouchCalibrateCustom1;
+menu_button_functions6[4] = &ReefAngelClass::SetupTouchLogin;
 
 #if not defined NOSD
 SDFound=(PINJ & (1<<PJ3))==0;
