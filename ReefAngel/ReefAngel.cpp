@@ -3059,7 +3059,7 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 			ReefAngel.Network.CloudPublish(buffer);
 #endif
 #ifdef CLOUD_WIFI
-			Serial.print(F("CeOUD:"));
+			Serial.print(F("CLOUD:"));
 			Serial.println(buffer);
 #endif
 			break;
