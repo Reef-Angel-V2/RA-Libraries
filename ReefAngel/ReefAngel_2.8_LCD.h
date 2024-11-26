@@ -229,51 +229,6 @@ void ReefAngelClass::SetupTouchDateTime()
 	NeedsRedraw=true;
 	newnow=now();
 }
-//Login Screen
-void ReefAngelClass::SetupTouchLogin()
-{
-    int y, twidth, theight;
-    twidth = TouchLCD.GetWidth();
-    theight = TouchLCD.GetHeight();
-
-    SetDisplayedMenu(LOGIN_MENU); // Assuming you have a way to set the current menu
-    TouchLCD.FullClear(COLOR_WHITE);
-
-    // Draw the "Login" header
-    LargeFont.SetColor(COLOR_SILVER, COLOR_WHITE, false);
-    LargeFont.DrawCenterTextP(TouchLCD.GetWidth()/2, 5, MENU_BUTTON_LOGIN);
-    LargeFont.SetColor(WARNING_TEXT, COLOR_WHITE, true);
-    LargeFont.DrawCenterTextP(TouchLCD.GetWidth()/2, 5, MENU_BUTTON_LOGIN);
-
-    // Username and Password labels
-Font.SetColor(COLOR_RED, COLOR_WHITE, false);
-
-int labelGap = 12; // Reduced gap between the label and the rectangle for moving labels up
-int labelUsernameY = theight / 4 - labelGap;
-int labelPasswordY = theight / 2 - labelGap;
-
-// Adjust rectangle start position (x) to make rectangles wider
-// Decrease rectStartX and increase rectWidth accordingly
-int rectStartX = twidth / 4; // Start a bit more to the left than before
-int rectWidth = twidth - rectStartX * 2; // Increase width to extend more to the right
-
-int labelUsernameX = rectStartX + rectWidth / 2; // Midpoint of the username rectangle
-int labelPasswordX = rectStartX + rectWidth / 2; // Midpoint of the password rectangle
-
-// Draw the labels with the calculated positions using a center-aligned text drawing method
-Font.DrawCenterTextP(labelUsernameX, labelUsernameY, LABEL_USERNAME);
-Font.DrawCenterTextP(labelPasswordX, labelPasswordY, LABEL_PASSWORD);
-
-// Draw the input fields (rectangles) with the new dimensions
-TouchLCD.DrawRectangle(COLOR_BLACK, rectStartX, theight / 4, rectStartX + rectWidth, theight / 4 + 40, false); // Changed to false for non-filled
-TouchLCD.DrawRectangle(COLOR_BLACK, rectStartX, theight / 2, rectStartX + rectWidth, theight / 2 + 40, false); // Changed to false for non-filled
-    // Login Button
- 	OkButton.SetPosition(twidth/4-40,theight*17/20);
-	OkButton.Show();
-    CancelButton.SetPosition(twidth*3/4-60,theight*17/20);
-	CancelButton.Show();
-	TouchEnabled=true;
-}
 
 void ReefAngelClass::SetupTouchCalibratePH()
 {
@@ -1418,8 +1373,10 @@ void ReefAngelClass::ShowTouchInterface()
 			}
 			break;
 		case 4:
-			if (OkButton.IsPressed())
+			if (OkButton.IsPressed() || ReefAngel.simulateOkPress)
 			{
+				// Reset the simulateOkPress flag
+                ReefAngel.simulateOkPress = false;
 				TouchLCD.Clear(COLOR_WHITE,0,theight/3,twidth,theight-50);
 				Font.SetColor(COLOR_BLACK, COLOR_WHITE,false);
 				Font.DrawCenterTextP(twidth/2,theight/3,PH_CALI1);
@@ -1947,52 +1904,6 @@ void ReefAngelClass::ShowTouchInterface()
 		}
 		break;
 	}
-    case LOGIN_MENU:
-{
-    // Assume these are set up similarly to your existing menu
-    int twidth = TouchLCD.GetWidth();
-    int theight = TouchLCD.GetHeight();
-
-
-    // Draw login screen if it needs redraw
-    if (NeedsRedraw)
-    {
-        // Clear the screen first
-LargeFont.SetColor(COLOR_BLACK, COLOR_WHITE, false);
-
-// Calculate the positions for labels to be centered above the input fields
-int labelYOffset = 30; // Adjust this value as needed to position the labels above the input fields
-int inputFieldHeight = 40; // The height of your input fields
-int labelUsernameY = theight / 4 - labelYOffset; // Position for the username label
-int labelPasswordY = theight / 2 - labelYOffset; // Position for the password label
-
-// Position the labels directly above the input fields
-LargeFont.DrawText(twidth / 6, labelUsernameY, LABEL_USERNAME);
-LargeFont.DrawText(twidth / 6, labelPasswordY, LABEL_PASSWORD);
-
-// Draw input fields (rectangles for simplicity)
-int inputFieldYStartUsername = theight / 4 + 20;
-int inputFieldYEndUsername = theight / 4 + 20 + inputFieldHeight;
-int inputFieldYStartPassword = theight / 2 + 20;
-int inputFieldYEndPassword = theight / 2 + 20 + inputFieldHeight;
-
-TouchLCD.DrawRectangle(COLOR_BLACK, twidth / 3, inputFieldYStartUsername, twidth * 2 / 3, inputFieldYEndUsername, false);
-TouchLCD.DrawRectangle(COLOR_BLACK, twidth / 3, inputFieldYStartPassword, twidth * 2 / 3, inputFieldYEndPassword, false);
-        // Draw the login button
-        
-
-        NeedsRedraw = false;
-    }
-if (TS.IsTouched()) {
-    // Example: Fetch the touch coordinates
-    
-}
-
-    // You can also check for button presses or other interactions here
-    CheckMenuTimeout(); // Assuming this is a method to handle menu timeout
-
-    break;
-}
 #ifdef CUSTOM_MENU
 	case ALT_SCREEN_MODE:
 	{
@@ -2237,6 +2148,23 @@ void ReefAngelClass::ReDrawScreen()
 							x+=twidth*5/16;
 						}
 #endif //OZONE EXPANSION
+
+#if defined WATERLEVELEXPANSION || defined MULTIWATERLEVELEXPANSION
+						//Water Level
+						if ((EM&(1<<7))!=0)
+						{
+							for (int a=0; a<WATERLEVEL_CHANNELS; a++)
+							{
+								if (x>twidth*14/16)
+								{
+									x=twidth*3/16;
+									j+=45+i;
+								}
+								Font.DrawCenterTextP(x,j,(char * )pgm_read_word(&(LABEL_WL[a])));
+								x+=twidth*5/16;
+							}
+						}
+#endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 #ifdef CO2EXPANSION
        if ((EM1 & (1 << 6)) != 0) {
         // Check if there's enough space to display both labels next to each other; if not, move to the next line
@@ -2259,22 +2187,6 @@ void ReefAngelClass::ReDrawScreen()
         x += twidth * 5 / 16; // Adjust x after displaying the humidity label
     }
 #endif // CO2EXPANSION
-#if defined WATERLEVELEXPANSION || defined MULTIWATERLEVELEXPANSION
-						//Water Level
-						if ((EM&(1<<7))!=0)
-						{
-							for (int a=0; a<WATERLEVEL_CHANNELS; a++)
-							{
-								if (x>twidth*14/16)
-								{
-									x=twidth*3/16;
-									j+=45+i;
-								}
-								Font.DrawCenterTextP(x,j,(char * )pgm_read_word(&(LABEL_WL[a])));
-								x+=twidth*5/16;
-							}
-						}
-#endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 #ifdef PAREXPANSION
 						//PAR
 						if ((EM1&(1<<3))!=0)
@@ -2378,6 +2290,23 @@ void ReefAngelClass::ReDrawScreen()
 							x+=twidth*5/21;
 						}
 #endif //OZONE EXPANSION
+
+#if defined WATERLEVELEXPANSION || defined MULTIWATERLEVELEXPANSION
+						//Water Level
+						if ((EM&(1<<7))!=0)
+						{
+							for (int a=0;a<WATERLEVEL_CHANNELS;a++)
+							{
+								if (x>twidth*18/21)
+								{
+									x=twidth*3/21;
+									j+=43+i;
+								}
+								Font.DrawCenterTextP(x,j,(char * )pgm_read_word(&(LABEL_WL[a])));
+								x+=twidth*5/21;
+							}
+						}
+#endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 #ifdef CO2EXPANSION
        if ((EM1 & (1 << 6)) != 0) {
         // Check if there's enough space to display both labels next to each other; if not, move to the next line
@@ -2400,22 +2329,6 @@ void ReefAngelClass::ReDrawScreen()
         x += twidth * 5 / 21; // Adjust x after displaying the humidity label
     }
 #endif // CO2EXPANSION
-#if defined WATERLEVELEXPANSION || defined MULTIWATERLEVELEXPANSION
-						//Water Level
-						if ((EM&(1<<7))!=0)
-						{
-							for (int a=0;a<WATERLEVEL_CHANNELS;a++)
-							{
-								if (x>twidth*18/21)
-								{
-									x=twidth*3/21;
-									j+=43+i;
-								}
-								Font.DrawCenterTextP(x,j,(char * )pgm_read_word(&(LABEL_WL[a])));
-								x+=twidth*5/21;
-							}
-						}
-#endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 #ifdef PAREXPANSION
 						//PAR
 						if ((EM1&(1<<3))!=0)
@@ -2547,39 +2460,6 @@ void ReefAngelClass::ReDrawScreen()
 						x+=twidth*5/16;
 					}          
 #endif //ozone expansion
-#ifdef CO2EXPANSION
-if (EM1 & (1 << 6)) {
-    if (x > twidth * 14 / 16) {
-        x = twidth * 3 / 16;
-        j += 45 + i;
-    }
-
-    // Check if the data is ready before reading the measurement
-   
-
-    // Proceed with updates only if new data is ready
-   
-          // Update and draw CO2 level if it has changed
-        if (Co2.getCO2Level() != Co2.co2ppmLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getCO2Level(), 0); // Display the new CO2 level
-            Co2.co2ppmLastLevel = Co2.getCO2Level(); // Update the last known CO2 level
-            x += twidth * 5 / 16; // Adjust position for next display
-        }
-
-        if (x > twidth * 14 / 16) {
-            x = twidth * 3 / 16;
-            j += 45 + i;
-        }
-
-        // Update and draw humidity level if it has changed
-        if (Co2.getHumidity() != Co2.co2HumidityLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getHumidity(), 0); // Display the new humidity level
-            Co2.co2HumidityLastLevel = Co2.getHumidity();; // Update the last known humidity level
-            x += twidth * 5 / 16; // Adjust position for next display
-        }
-    
-}
-#endif // CO2EXPANSION
 #if defined WATERLEVELEXPANSION || defined MULTIWATERLEVELEXPANSION
 					//Water Level
 					if ((EM&(1<<7))!=0)
@@ -2600,6 +2480,37 @@ if (EM1 & (1 << 6)) {
 						}
 					}
 #endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
+#ifdef CO2EXPANSION
+if (EM1 & (1 << 6)) {
+   
+    if (x > twidth * 14 / 16) 
+	{
+        x = twidth * 3 / 16;
+        j += 45 + i;
+    }
+
+   
+          // Update and draw CO2 level if it has changed
+        if (Co2.getCO2Level() != Co2.co2ppmLastLevel) {
+            LargeFont.DrawCenterNumber(x, j, Co2.getCO2Level(), 0); // Display the new CO2 level
+            Co2.co2ppmLastLevel = Co2.getCO2Level(); // Update the last known CO2 level
+            x += twidth * 5 / 16; // Adjust position for next display
+        }
+
+        if (x > twidth * 14 / 16) {
+            x = twidth * 3 / 16;
+            j += 45 + i;
+        }
+
+        // Update and draw humidity level if it has changed
+        if (Co2.getHumidity() != Co2.co2HumidityLastLevel) {
+            LargeFont.DrawCenterNumber(x, j, Co2.getHumidity(), 10); // Display the new humidity level
+            Co2.co2HumidityLastLevel = Co2.getHumidity();; // Update the last known humidity level
+            x += twidth * 5 / 16; // Adjust position for next display
+        }
+    
+}
+#endif // CO2EXPANSION
 #ifdef PAREXPANSION
 					//PAR
 					if ((EM1&(1<<3))!=0)
@@ -2743,35 +2654,7 @@ if (EM1 & (1 << 6)) {
 #endif //ozone expansion
 
 
-#ifdef CO2EXPANSION
-if ((EM1 & (1 << 6)) != 0) {
-    if (x > twidth * 18 / 21) {
-        x = twidth * 3 / 21;
-        j += 43 + i;
-    }
-    
-        // Update and draw CO2 level if it has changed
-        if (Co2.getCO2Level() != Co2.co2ppmLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getCO2Level(), 0); // Display the new CO2 level
-            Co2.co2ppmLastLevel = Co2.getCO2Level(); // Update the last known CO2 level
-            x += twidth * 5 / 21; // Adjust position for next display
-        }
 
-        if (x > twidth * 18 / 21) {
-            x = twidth * 3 / 21;
-            j += 43 + i;
-        }
-
-        // Update and draw humidity level if it has changed
-          if (Co2.getHumidity() != Co2.co2HumidityLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getHumidity(), 0); // Display the new humidity level
-            Co2.co2HumidityLastLevel = Co2.getHumidity();; // Update the last known humidity level
-            x += twidth * 5 / 21; // Adjust position for next display
-        }
-    }
-	
-      
-#endif // CO2EXPANSION
 #if defined WATERLEVELEXPANSION || defined MULTIWATERLEVELEXPANSION
 					//Water Level
 					if ((EM&(1<<7))!=0)
@@ -2792,6 +2675,37 @@ if ((EM1 & (1 << 6)) != 0) {
 						}
 					}
 #endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
+#ifdef CO2EXPANSION
+if ((EM1 & (1 << 6)) != 0) {
+
+    if (x > twidth * 18 / 21)
+	 {
+        x = twidth * 3 / 21;
+        j += 43 + i;
+    }
+    
+        // Update and draw CO2 level if it has changed
+        if (Co2.getCO2Level() != Co2.co2ppmLastLevel) {
+            LargeFont.DrawCenterNumber(x, j, Co2.getCO2Level(), 0); // Display the new CO2 level
+            Co2.co2ppmLastLevel = Co2.getCO2Level(); // Update the last known CO2 level
+            x += twidth * 5 / 21; // Adjust position for next display
+        }
+
+        if (x > twidth * 18 / 21) {
+            x = twidth * 3 / 21;
+            j += 43 + i;
+        }
+
+        // Update and draw humidity level if it has changed
+          if (Co2.getHumidity() != Co2.co2HumidityLastLevel) {
+            LargeFont.DrawCenterNumber(x, j, Co2.getHumidity(),10); // Display the new humidity level
+            Co2.co2HumidityLastLevel = Co2.getHumidity();; // Update the last known humidity level
+            x += twidth * 5 / 21; // Adjust position for next display
+        }
+    }
+	
+      
+#endif // CO2EXPANSION
 #ifdef PAREXPANSION
 					//PAR
 					if ((EM1&(1<<3))!=0)
