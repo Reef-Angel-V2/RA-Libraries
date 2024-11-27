@@ -373,7 +373,22 @@ void RA_Wiznet5100::CloudPublish(char* message)
 }
 
 //size_t RA_Wiznet5100::write(uint8_t c) { if (RelayIndex) return RelayClient.write((uint8_t)c); else if (PortalConnection) return PortalClient.write((uint8_t)c); else return NetClient.write((uint8_t)c); }
-size_t RA_Wiznet5100::write(uint8_t c) { if (PortalConnection) return PortalClient.write((uint8_t)c); else return NetClient.write((uint8_t)c); }
+size_t RA_Wiznet5100::write(uint8_t c) {
+    if (PortalConnection) {
+        if (PortalClient.connected()) { // Ensure PortalClient is connected
+            return PortalClient.write(c); // Write to PortalClient
+        } else {
+            PortalConnection = false; // Mark PortalConnection as unavailable
+            return 0; // Indicate failure
+        }
+    } else {
+        if (NetClient.connected()) { // Ensure NetClient is connected
+            return NetClient.write(c); // Write to NetClient
+        } else {
+            return 0; // Indicate failure
+        }
+    }
+}
 //size_t RA_Wiznet5100::write(unsigned long n) { if (RelayIndex) return RelayClient.write((uint8_t)n); else if (PortalConnection) return PortalClient.write((uint8_t)n); else return NetClient.write((uint8_t)n); }
 //size_t RA_Wiznet5100::write(long n) { if (RelayIndex) return RelayClient.write((uint8_t)n); else if (PortalConnection) return PortalClient.write((uint8_t)n); else return NetClient.write((uint8_t)n); }
 //size_t RA_Wiznet5100::write(unsigned int n) { if (RelayIndex) return RelayClient.write((uint8_t)n); else if (PortalConnection) return PortalClient.write((uint8_t)n); else return NetClient.write((uint8_t)n); }
