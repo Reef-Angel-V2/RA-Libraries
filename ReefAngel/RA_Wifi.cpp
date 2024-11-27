@@ -1282,7 +1282,7 @@ void RA_Wifi::SendXMLData(bool fAtoLog /*= false*/)
 	print(ReefAngel.PAR.GetLevel(), DEC);
 	PROGMEMprint(XML_PAR_END);
 #endif  // PAREXPANSION
-#ifdef ORPEXPANSION
+#ifdef OZOEXPANSION
 	PROGMEMprint(XML_OZO);
 	print(ReefAngel.Params.Ozone, DEC);
 	PROGMEMprint(XML_OZO_END);
