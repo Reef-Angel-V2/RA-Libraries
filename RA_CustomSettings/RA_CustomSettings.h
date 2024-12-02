@@ -23,6 +23,7 @@
 // Portal & Cloud Server
 const IPAddress PortalServer(191,101,233,157); // forum.reefangel.com
 static byte MQTTServer[] = {191,101,233,157}; // cloud.reefangel.com
+const IPAddress WebWizardServer(191,101,233,157); // webwizard.reefangel.com
 
 #define MQTTPORT 1883 // MQTT server port
 
