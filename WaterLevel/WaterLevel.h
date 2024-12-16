@@ -30,8 +30,7 @@ public:
 	WaterLevelClass();
 	byte LastLevel[WATERLEVEL_CHANNELS];
 	byte level[WATERLEVEL_CHANNELS];
-	byte wl_gain; // Default gain for single channel sensor
-    byte multi_wl_gain[WATERLEVEL_CHANNELS]; // Gains for multi-channel sensors
+	byte wl_gain;
 	int Read();
 	int Read(byte channel);
 	void Convert();
@@ -39,8 +38,7 @@ public:
 	inline byte GetLevel() { return level[0]; } ;
 	inline byte GetLevel(byte channel) { if (channel>=WATERLEVEL_CHANNELS) return 0; else return level[channel]; } ;
 	inline byte SetLevel(byte channel, int value) { if (channel<=WATERLEVEL_CHANNELS) level[channel]=value; } ;
-    void SetGain(byte gain); 
-	void SetChannelGain(byte channel, byte gain); // Set gain for specific channel in multi-channel sensor
+	inline void SetGain(byte gain) { wl_gain=gain; };
 private:
 };
 
