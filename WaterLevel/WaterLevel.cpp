@@ -25,12 +25,11 @@
 #include <InternalEEPROM.h>
 
 
-WaterLevelClass::WaterLevelClass() {
-    wl_gain = 3;
-    for (int a = 0; a < WATERLEVEL_CHANNELS; a++) {
-        level[a] = 0;
-        multi_wl_gain[a] = 3; // Default gain for multi-channel sensors
-    }
+WaterLevelClass::WaterLevelClass()
+{
+	wl_gain=3;
+	for (int a=0;a<WATERLEVEL_CHANNELS;a++)
+		level[a]=0;
 }
 
 int WaterLevelClass::Read()
@@ -45,37 +44,30 @@ int WaterLevelClass::Read()
 	}
 	return iWaterLevel;
 }
-void WaterLevelClass::SetGain(byte gain) {
-    wl_gain = gain; // Set gain for single channel sensor
-}
 
-void WaterLevelClass::SetChannelGain(byte channel, byte gain) {
-    if (channel < WATERLEVEL_CHANNELS) {
-        multi_wl_gain[channel] = gain; // Set gain for specific channel
-    }
-}
-int WaterLevelClass::Read(byte channel) 
+int WaterLevelClass::Read(byte channel)
 {
-    if (channel == 0) return Read();
-    int iWaterLevel = 0;
-    Wire.beginTransmission(I2CMultiWaterLevel);
-    Wire.write(1); // Config Pointer
-    byte addr = (0xb + channel) << 4; // Select which channel to read
-    addr += (channel == 0) ? wl_gain : multi_wl_gain[channel]; // Use appropriate gain
-    Wire.write(addr);
-    Wire.write(0x83);
-    Wire.endTransmission();
-    delay(10); // It takes 10ms for conversion to be completed
-    Wire.beginTransmission(I2CMultiWaterLevel);
-    Wire.write(0); // Convert Pointer
-    Wire.endTransmission();
-    Wire.requestFrom(I2CMultiWaterLevel, 2); // Request converted value
-    if (Wire.available()) {
-        iWaterLevel = Wire.read();
-        iWaterLevel <<= 8;
-        iWaterLevel += Wire.read();
-    }
-    return iWaterLevel >> 4;
+	if (channel==0) return Read();
+	int iWaterLevel=0;
+	Wire.beginTransmission(I2CMultiWaterLevel);
+	Wire.write(1); // Config Pointer
+	byte addr=(0xb+channel)<<4; // Select which channel to read
+	addr+=wl_gain; // Programmable Gain
+	Wire.write(addr);
+	Wire.write(0x83);
+	Wire.endTransmission();
+	delay(10); // It takes 10ms for conversion to be completed
+	Wire.beginTransmission(I2CMultiWaterLevel);
+	Wire.write(0); // Convert Pointer
+	Wire.endTransmission();
+	Wire.requestFrom(I2CMultiWaterLevel,2); // Request converted value
+	if (Wire.available())
+	{
+		iWaterLevel = Wire.read();
+		iWaterLevel = iWaterLevel<<8;
+		iWaterLevel += Wire.read();
+	}
+	return iWaterLevel>>4;
 }
 
 void WaterLevelClass::Convert()
