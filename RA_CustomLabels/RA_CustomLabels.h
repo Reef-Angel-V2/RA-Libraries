@@ -79,6 +79,10 @@ const char LABEL_PHEXP_SHORT[] PROGMEM = "pHE";
 const char LABEL_HUMIDITY[] PROGMEM = "Humidity";
 const char LABEL_HUMIDITY_SHORT[] PROGMEM = "Hum";
 const char LABEL_PAR[] PROGMEM = "PAR";
+const char LABEL_OZONE[] PROGMEM = "Ozone";
+const char LABEL_OZONE_SHORT[] PROGMEM ="Ozo";
+const char LABEL_CO2[] PROGMEM = "Co2";
+const char LABEL_Co2_SHORT[] PROGMEM ="Co2";
 
 const char LABEL_CUSTOM_EXP0[] PROGMEM = "Exp 0";
 const char LABEL_CUSTOM_EXP1[] PROGMEM = "Exp 1";
