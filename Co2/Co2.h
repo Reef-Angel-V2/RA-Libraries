@@ -57,7 +57,7 @@
 class Co2Sensor {
 public:
     Co2Sensor();
-    bool begin(bool startMeasurements = true); 
+    bool begin(bool startMeasurements); 
     bool readMeasurement();
     bool performFactoryReset();
     int getCO2Level();
