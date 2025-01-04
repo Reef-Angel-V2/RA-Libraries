@@ -2033,7 +2033,7 @@ void RA_Wifi::SendPortal(char *username, char*key)
 #endif  // DCPUMPCONTROL
 #ifdef IOEXPANSION
   PROGMEMprint(BannerIO);
-  print(ReefAngel.IO.GetChannel(), DEC);
+  print(ReefAngel.IO.IOPorts, DEC);
 #endif  // IOEXPANSION
 #ifdef CUSTOM_VARIABLES
   for ( byte EID = 0; EID < 8; EID++ )
