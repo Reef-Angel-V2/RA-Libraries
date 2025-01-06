@@ -53,7 +53,6 @@ void SetupTouchCalibratePH();
 void SetupTouchCalibrateSal();
 void SetupTouchCalibrateORP();
 void SetupTouchCalibratePHExp();
-void SetupTouchLogin();
 void SetupTouchCalibrateWL(byte channel);
 void SetupTouchCalibrateCustom(byte index);
 inline void SetupTouchCalibrateWL0() { SetupTouchCalibrateWL(0); };
