@@ -70,7 +70,7 @@ void receiveEventMaster(int howMany);
 #define EMBEDDED_LEAK
 //#define RANETF
 #define NOTILT
-#define PWMEXPANSION
+//#define PWMEXPANSION
 //#define IOEXPANSION
 //#define RFEXPANSION
 //#define SALINITYEXPANSION
