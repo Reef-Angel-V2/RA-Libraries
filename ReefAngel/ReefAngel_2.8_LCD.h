@@ -2482,33 +2482,26 @@ void ReefAngelClass::ReDrawScreen()
 #endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 #ifdef CO2EXPANSION
 if (EM1 & (1 << 6)) {
-   
-    if (x > twidth * 14 / 16) 
-	{
-        x = twidth * 3 / 16;
-        j += 45 + i;
-    }
+    // Define CO2 channels and iterate through them
+    int co2Channels = 2; // Example: 0 for CO2, 1 for Humidity
+    int values[2] = {Co2.co2, Co2.co2Humidity}; // Array to hold the values
+    int* lastValues[2] = {&Co2.co2ppmLastLevel, &Co2.co2HumidityLastLevel}; // Pointers to last values
 
-   
-          // Update and draw CO2 level if it has changed
-        if (Co2.getCO2Level() != Co2.co2ppmLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getCO2Level(), 0); // Display the new CO2 level
-            Co2.co2ppmLastLevel = Co2.getCO2Level(); // Update the last known CO2 level
-            x += twidth * 5 / 16; // Adjust position for next display
-        }
-
+    for (int channel = 0; channel < co2Channels; channel++) {
+        // Ensure x and j start at appropriate positions
         if (x > twidth * 14 / 16) {
             x = twidth * 3 / 16;
-            j += 45 + i;
+            j += 45 + i; // Move to the next row
         }
 
-        // Update and draw humidity level if it has changed
-        if (Co2.getHumidity() != Co2.co2HumidityLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getHumidity(), 10); // Display the new humidity level
-            Co2.co2HumidityLastLevel = Co2.getHumidity();; // Update the last known humidity level
-            x += twidth * 5 / 16; // Adjust position for next display
+        // Draw value if it has changed
+        if (values[channel] != *lastValues[channel]) {
+            LargeFont.DrawCenterNumber(x, j, values[channel], channel == 1 ? 10 : 0); // Display value
+            *lastValues[channel] = values[channel]; // Update last known value
         }
-    
+
+        x += twidth * 5 / 16; // Move to the next display position
+    }
 }
 #endif // CO2EXPANSION
 #ifdef PAREXPANSION
@@ -2676,35 +2669,28 @@ if (EM1 & (1 << 6)) {
 					}
 #endif // WATERLEVELEXPANSION || MULTIWATERLEVELEXPANSION
 #ifdef CO2EXPANSION
-if ((EM1 & (1 << 6)) != 0) {
+if (EM1 & (1 << 6)) {
+    // Define CO2 channels and iterate through them
+    int co2Channels = 2; 
+    int values[2] = {Co2.co2, Co2.co2Humidity}; // Array to hold the values
+    int* lastValues[2] = {&Co2.co2ppmLastLevel, &Co2.co2HumidityLastLevel}; // Pointers to last values
 
-    if (x > twidth * 18 / 21)
-	 {
+    for (int channel = 0; channel < co2Channels; channel++) {
+        // Ensure x and j start at appropriate positions
+        if  (x > twidth * 18 / 21) {
         x = twidth * 3 / 21;
         j += 43 + i;
-    }
-    
-        // Update and draw CO2 level if it has changed
-        if (Co2.getCO2Level() != Co2.co2ppmLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getCO2Level(), 0); // Display the new CO2 level
-            Co2.co2ppmLastLevel = Co2.getCO2Level(); // Update the last known CO2 level
-            x += twidth * 5 / 21; // Adjust position for next display
         }
 
-        if (x > twidth * 18 / 21) {
-            x = twidth * 3 / 21;
-            j += 43 + i;
+        // Draw value if it has changed
+        if (values[channel] != *lastValues[channel]) {
+            LargeFont.DrawCenterNumber(x, j, values[channel], channel == 1 ? 10 : 0); // Display value
+            *lastValues[channel] = values[channel]; // Update last known value
         }
 
-        // Update and draw humidity level if it has changed
-          if (Co2.getHumidity() != Co2.co2HumidityLastLevel) {
-            LargeFont.DrawCenterNumber(x, j, Co2.getHumidity(),10); // Display the new humidity level
-            Co2.co2HumidityLastLevel = Co2.getHumidity();; // Update the last known humidity level
-            x += twidth * 5 / 21; // Adjust position for next display
-        }
+        x += twidth * 5 / 21;
     }
-	
-      
+}
 #endif // CO2EXPANSION
 #ifdef PAREXPANSION
 					//PAR
