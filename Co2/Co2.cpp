@@ -157,17 +157,20 @@ int Co2Sensor::getCO2Level() {
     if (readMeasurement()) {
         return co2;
     }
+  return co2;
 }
 int Co2Sensor::getHumidity() {
 
     if (readMeasurement()) {
         return co2Humidity;
     }
+  return co2Humidity;
 }
 int Co2Sensor::getTempLevel() {
     if (readMeasurement()) {
         return temperature;
     }
+  return temperature;
 }
 void Co2Sensor::resetValues() {
     co2 = 0;
