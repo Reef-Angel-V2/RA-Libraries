@@ -833,13 +833,9 @@ if (bitRead(ReefAngel.CEM1, CloudOzoneBit) == 0)
    
 if (bitRead(ReefAngel.CEM1, CloudCo2Bit) == 0) {
     // Ensure a measurement is read before getting the levels
-	
-    if (Co2.readMeasurement()) { 
-         Co2.getCO2Level();
-        Co2.getHumidity();
-		       
+        Co2.getCO2Level();
+        Co2.getHumidity();       
         RefreshScreen(); // Assuming this function updates the display based on the new readings
-    }
 }    
 
 #endif  // CO2EXPANSION
