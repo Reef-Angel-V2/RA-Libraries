@@ -17,9 +17,9 @@
 #ifndef CO2_H
 #define CO2_H
 
-#include "Globals.h"
+//#include "Globals.h"
 #include <Wire.h>
-
+#include <Arduino.h>
 //Basic Commands
 #define SCD4x_COMMAND_START_PERIODIC_MEASUREMENT              0x21b1
 #define SCD4x_COMMAND_READ_MEASUREMENT                        0xec05 // execution time: 1ms
@@ -52,6 +52,8 @@
 //Low power single shot - SCD41 only
 #define SCD4x_COMMAND_MEASURE_SINGLE_SHOT                     0x219d // execution time: 5000ms
 #define SCD4x_COMMAND_MEASURE_SINGLE_SHOT_RHT_ONLY            0x2196 // execution time: 50ms
+
+#define I2CCo2          0x62
 
 
 class Co2Sensor {
