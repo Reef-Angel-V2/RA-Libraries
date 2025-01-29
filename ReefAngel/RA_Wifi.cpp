@@ -406,7 +406,7 @@ void RA_Wifi::ProcessHTTP()
 #ifdef PAREXPANSION
 			s += 11;
 			//<PAR></PAR>
-			s += intlength(ReefAngel.PAR.GetLevel());
+			s += intlength(ReefAngel.PAR.level);
 #endif  // PAREXPANSION
 #ifdef OZONEEXPANSION
 			s += 11;
@@ -416,8 +416,8 @@ void RA_Wifi::ProcessHTTP()
 #ifdef CO2EXPANSION
     s += 28;  // Adding fixed length for <CO2></CO2><CO2HUM></CO2HUM> tags
     // Add the length of the integer values as string
-    s += intlength(ReefAngel.Co2.getCO2Level());
-    s += intlength(ReefAngel.Co2.getHumidity());
+    s += intlength(ReefAngel.Co2.co2);
+    s += intlength(ReefAngel.Co2.co2Humidity);
 #endif // CO2EXPANSION
 #ifdef DCPUMPCONTROL
 			s += 44;
@@ -430,7 +430,7 @@ void RA_Wifi::ProcessHTTP()
 #ifdef IOEXPANSION
 			s += 9;
 			//<IO></IO>
-			s += intlength(ReefAngel.IO.GetChannel());
+			s += intlength(ReefAngel.IO.IOPorts);
 #endif  // IOEXPANSION
 #ifdef CUSTOM_VARIABLES
 			s += 72;
@@ -1003,7 +1003,7 @@ void RA_Wifi::ProcessHTTP()
 #ifdef PAREXPANSION
 			s += 9;
 			//,"PAR":""
-			s += intlength(ReefAngel.PAR.GetLevel());
+			s += intlength(ReefAngel.PAR.level);
 #endif  // PAREXPANSION
 #ifdef DCPUMPCONTROL
 			s += 36;
@@ -1016,7 +1016,7 @@ void RA_Wifi::ProcessHTTP()
 #ifdef IOEXPANSION
 			s += 8;
 			//,"IO":""
-			s += intlength(ReefAngel.IO.GetChannel());
+			s += intlength(ReefAngel.IO.IOPorts);
 #endif  // IOEXPANSION
 #ifdef CUSTOM_VARIABLES
 			s += 64;
@@ -1279,7 +1279,7 @@ void RA_Wifi::SendXMLData(bool fAtoLog /*= false*/)
 #endif  // HUMIDITYEXPANSION
 #ifdef PAREXPANSION
 	PROGMEMprint(XML_PAR);
-	print(ReefAngel.PAR.GetLevel(), DEC);
+	print(ReefAngel.PAR.level, DEC);
 	PROGMEMprint(XML_PAR_END);
 #endif  // PAREXPANSION
 #ifdef OZONEEXPANSION
@@ -1289,10 +1289,10 @@ void RA_Wifi::SendXMLData(bool fAtoLog /*= false*/)
 #endif  // OZONEEXPANSION
 #ifdef CO2EXPANSION
 	PROGMEMprint(XML_CO2);
-	print(ReefAngel.Co2.getCO2Level(), DEC);
+	print(ReefAngel.Co2.co2, DEC);
 	PROGMEMprint(XML_CO2_END);
 	PROGMEMprint(XML_CO2HHUM);
-	print(ReefAngel.Co2.getHumidity(),DEC);
+	print(ReefAngel.Co2.co2Humidity,DEC);
 	PROGMEMprint(XML_CO2HUM_END);
 
 #endif  // CO2EXPANSION
@@ -1309,7 +1309,7 @@ void RA_Wifi::SendXMLData(bool fAtoLog /*= false*/)
 #endif  // DCPUMPCONTROL
 #ifdef IOEXPANSION
 	PROGMEMprint(XML_IO);
-	print(ReefAngel.IO.GetChannel(), DEC);
+	print(ReefAngel.IO.IOPorts, DEC);
 	PROGMEMprint(XML_IO_END);
 #endif  // IOEXPANSION
 #ifdef CUSTOM_VARIABLES
@@ -1595,7 +1595,7 @@ void RA_Wifi::SendJSONData()
 	SendSingleJSON(JSON_HUM,ReefAngel.Humidity.GetLevel());
 #endif  // HUMIDITYEXPANSION
 #ifdef PAREXPANSION
-	SendSingleJSON(JSON_PAR,ReefAngel.PAR.GetLevel());
+	SendSingleJSON(JSON_PAR,ReefAngel.PAR.level);
 #endif  // PAREXPANSION
 #ifdef DCPUMPCONTROL
 	SendSingleJSON(JSON_DCM,ReefAngel.DCPump.Mode);
@@ -1604,7 +1604,7 @@ void RA_Wifi::SendJSONData()
 	SendSingleJSON(JSON_DCT,ReefAngel.DCPump.Threshold);
 #endif  // DCPUMPCONTROL
 #ifdef IOEXPANSION
-	SendSingleJSON(JSON_IO,ReefAngel.IO.GetChannel());
+	SendSingleJSON(JSON_IO,ReefAngel.IO.IOPorts);
 #endif  // IOEXPANSION
 #ifdef CUSTOM_VARIABLES
 	for ( byte EID = 0; EID < 8; EID++ )
@@ -2013,13 +2013,13 @@ void RA_Wifi::SendPortal(char *username, char*key)
 #endif //OZONEEXPANSION
 #ifdef CO2EXPANSION
   PROGMEMprint(BannerCo2);
-  print(ReefAngel.Co2.getCO2Level(), DEC);
+  print(ReefAngel.Co2.co2, DEC);
   PROGMEMprint(BannerCo2Hum);
-  print(ReefAngel.Co2.getHumidity(), DEC);
+  print(ReefAngel.Co2.co2Humidity, DEC);
 #endif //CO2
 #ifdef PAREXPANSION
   PROGMEMprint(BannerPAR);
-  print(ReefAngel.PAR.GetLevel(), DEC);
+  print(ReefAngel.PAR.level, DEC);
 #endif  // PAREXPANSION
 #ifdef DCPUMPCONTROL
   PROGMEMprint(BannerDCM);
