@@ -68,7 +68,7 @@ void receiveEventMaster(int howMany);
 #define ETH_WIZ5100
 #define LEAKDETECTOREXPANSION
 #define EMBEDDED_LEAK
-//#define RANETF
+//#define RANET
 #define NOTILT
 //#define PWMEXPANSION
 //#define IOEXPANSION
@@ -1446,9 +1446,15 @@ const char RF_NTM[] PROGMEM = "Nutrient Transport";
 const char RF_TSM[] PROGMEM = "Tidal Swell";
 const char RF_FEEDING[] PROGMEM = "Feeding";
 const char RF_NIGHT[] PROGMEM = "Night";
+//DC Pump Custom Modes
+const char RF_STORM[] PROGMEM = "Storm";
+const char RF_CUSTOM[] PROGMEM = "Custom";
+const char RF_ELSE[] PROGMEM = "Else";
+const char RF_SINE[] PROGMEM = "Sine";
+const char RF_GYRE[] PROGMEM = "Gyre";
 const char RF_SLAVE[] PROGMEM = "Slave Check";
 //const char RF_None[] PROGMEM = "None";
-static PROGMEM const char * const RF_MODE[] = {RF_CONSTANT, RF_LAGOONAL, RF_REEFCREST, RF_SHORTWAVE, RF_LONGWAVE, RF_NTM, RF_TSM, RF_FEEDING, RF_FEEDING, RF_NIGHT};
+static PROGMEM const char * const RF_MODE[] = {RF_CONSTANT, RF_LAGOONAL, RF_REEFCREST, RF_SHORTWAVE, RF_LONGWAVE, RF_NTM, RF_TSM, RF_FEEDING, RF_FEEDING, RF_NIGHT, RF_STORM, RF_CUSTOM, RF_ELSE, RF_SINE, RF_GYRE};
 
 const char FEEDING_LABEL[] PROGMEM = "Feeding Mode";
 const char WATER_CHANGE_LABEL[] PROGMEM = "Water Change";
