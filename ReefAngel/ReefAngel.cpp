@@ -3088,12 +3088,30 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 //			}
 			for (byte a=0; a<4; a++)
 			{
-				ReefAngel.OldParamArrayInt[a]=ReefAngel.OldParamArrayInt[a]+1;
+				ReefAngel.OldParamArrayInt[a]=ReefAngel.OldParamArrayInt[a]+1; //Temp1, Temp 2, Temp 3, PH
 			}
-			ReefAngel.OldParamArrayByte[7]=ReefAngel.OldParamArrayByte[7]+1;
-			ReefAngel.OldParamArrayByte[12]=ReefAngel.OldParamArrayByte[12]+1;
-			ReefAngel.OldParamArrayByte[13]=ReefAngel.OldParamArrayByte[13]+1;
-			ReefAngel.OldParamArrayByte[14]=ReefAngel.OldParamArrayByte[14]+1;
+			#ifdef ORPEXPANSION
+			ReefAngel.OldParamArrayInt[7]=ReefAngel.OldParamArrayInt[7]+1; //ORP
+			#endif
+			#ifdef SALINITYEXPANSION
+				ReefAngel.OldParamArrayInt[8]=ReefAngel.OldParamArrayInt[8]+1; //Salinity
+			#endif
+			#ifdef PHEXPANSION
+				ReefAngel.OldParamArrayInt[9]=ReefAngel.OldParamArrayInt[9]+1; //PHExp
+			#endif
+			ReefAngel.OldParamArrayByte[7]=ReefAngel.OldParamArrayByte[7]+1; //Status Flag
+			#ifdef RelayExp
+			#if InstalledRelayExpansionModules >= 1
+			ReefAngel.OldParamArrayByte[12]=ReefAngel.OldParamArrayByte[12]+1; //R1
+			ReefAngel.OldParamArrayByte[13]=ReefAngel.OldParamArrayByte[13]+1; //ROFF1
+			ReefAngel.OldParamArrayByte[14]=ReefAngel.OldParamArrayByte[14]+1; //RON1
+			#endif
+			#if InstalledRelayExpansionModules >= 2
+			ReefAngel.OldParamArrayByte[15]=ReefAngel.OldParamArrayByte[15]+1; //R2
+			ReefAngel.OldParamArrayByte[16]=ReefAngel.OldParamArrayByte[16]+1; //ROFF2
+			ReefAngel.OldParamArrayByte[17]=ReefAngel.OldParamArrayByte[17]+1; //RON2
+			#endif
+			#endif
 			break;
 		}
 #ifdef RA_STAR		
