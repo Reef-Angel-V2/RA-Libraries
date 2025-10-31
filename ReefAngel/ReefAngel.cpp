@@ -796,8 +796,10 @@ void ReefAngelClass::Refresh()
 		cbi(PORTH,2); // Turn on exp bus power
 
 		int rtn = I2C_ClearBus(); // clear the I2C bus first before calling Wire.begin()
+		wdt_reset(); // Reset watchdog after potentially long I2C_ClearBus() operation
 		  if (rtn != 0) {
 		    Serial.println(F("I2C bus error. Could not clear"));
+		    wdt_reset(); // Reset watchdog after error message
 		    if (rtn == 1) {
 		      Serial.println(F("SCL clock line held low"));
 		    } else if (rtn == 2) {
@@ -809,8 +811,10 @@ void ReefAngelClass::Refresh()
 		    // re-enable Wire
 		    // now can start Wire Arduino master
 		    Wire.begin();
+		    wdt_reset(); // Reset watchdog after Wire.begin() reinitialization
 		  }
 		  Serial.println("Bus Cleared :)");
+		  wdt_reset(); // Reset watchdog after bus clear completion
 
 	}
 	else
@@ -1985,7 +1989,7 @@ void ReefAngelClass::CloudPortal()
 			{
 				char buffer[15];
 				strcpy_P(buffer, (char*)pgm_read_word(&(param_items_byte[a])));
-				sprintf(buffer, "%s:%d", buffer, *ReefAngel.ParamArrayByte[a]);
+				snprintf(buffer, sizeof(buffer), "%s:%d", buffer, *ReefAngel.ParamArrayByte[a]);
 				Serial.print(F("CLOUD:"));
 				Serial.println(buffer);
 				ReefAngel.OldParamArrayByte[a]=*ReefAngel.ParamArrayByte[a];
@@ -1999,7 +2003,7 @@ void ReefAngelClass::CloudPortal()
 			{
 				char buffer[15];
 				strcpy_P(buffer, (char*)pgm_read_word(&(param_items_int[a])));
-				sprintf(buffer, "%s:%d", buffer, *ReefAngel.ParamArrayInt[a]);
+				snprintf(buffer, sizeof(buffer), "%s:%d", buffer, *ReefAngel.ParamArrayInt[a]);
 				Serial.print(F("CLOUD:"));
 				Serial.println(buffer);
 				ReefAngel.OldParamArrayInt[a]=*ReefAngel.ParamArrayInt[a];
@@ -2763,7 +2767,8 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 				else if (strcmp("calcus6", mqtt_sub)==0) mqtt_type=MQTT_CALCUS6;
 				else if (strcmp("calcus7", mqtt_sub)==0) mqtt_type=MQTT_CALCUS7;
 				else if (strcmp("calcus8", mqtt_sub)==0) mqtt_type=MQTT_CALCUS8;
-				
+				//Firmware Check
+				else if (strcmp("fw", mqtt_sub)==0) mqtt_type=MQTT_FIRMWARECHECK;
 			}
 		}
 		else
@@ -2996,7 +3001,7 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 		{
 			InternalMemory.write(mqtt_val, mqtt_val1);
 			char buffer[16];
-			sprintf(buffer, "MBOK:%d", mqtt_val);
+			snprintf(buffer, sizeof(buffer), "MBOK:%d", mqtt_val);
 #ifdef RA_STAR
 			ReefAngel.Network.CloudPublish(buffer);
 #endif
@@ -3010,7 +3015,7 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 		{
 			InternalMemory.write_int(mqtt_val, mqtt_val1);
 			char buffer[16];
-			sprintf(buffer, "MIOK:%d", mqtt_val);
+			snprintf(buffer, sizeof(buffer), "MIOK:%d", mqtt_val);
 #ifdef RA_STAR
 			ReefAngel.Network.CloudPublish(buffer);
 #endif
@@ -3037,7 +3042,7 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 				RTC.set(now());
 			}
 			char buffer[16];
-			sprintf(buffer, "DATE:%02d%02d%02d%02d%02d", month(), day(), year()-2000, hour(), minute());
+			snprintf(buffer, sizeof(buffer), "DATE:%02d%02d%02d%02d%02d", month(), day(), year()-2000, hour(), minute());
 #ifdef RA_STAR
 			ReefAngel.Network.CloudPublish(buffer);
 #endif
@@ -3050,7 +3055,7 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 		case MQTT_VERSION:
 		{
 			char buffer[16];
-			sprintf(buffer, "V:%s", ReefAngel_Version);
+			snprintf(buffer, sizeof(buffer), "V:%s", ReefAngel_Version);
 #ifdef RA_STAR
 			ReefAngel.Network.CloudPublish(buffer);
 #endif
@@ -3063,10 +3068,10 @@ void MQTTSubCallback(char* topic, byte* payload, unsigned int length) {
 		case MQTT_MEM_RAW:
 		{
 			int mindex=0;
-			char buffer[21];
+			char buffer[32];  // Increased buffer size for memory raw data
 			while ((VarsEnd-VarsStart-mindex)>8)
 			{
-				sprintf(buffer,"MR%02d:%02x%02x%02x%02x%02x%02x%02x%02x  ",mindex/8,InternalMemory.read(VarsStart+mindex+0),InternalMemory.read(VarsStart+mindex+1),InternalMemory.read(VarsStart+mindex+2),InternalMemory.read(VarsStart+mindex+3),InternalMemory.read(VarsStart+mindex+4),InternalMemory.read(VarsStart+mindex+5),InternalMemory.read(VarsStart+mindex+6),InternalMemory.read(VarsStart+mindex+7));
+				snprintf(buffer, sizeof(buffer), "MR%02d:%02x%02x%02x%02x%02x%02x%02x%02x  ", mindex/8, InternalMemory.read(VarsStart+mindex+0), InternalMemory.read(VarsStart+mindex+1), InternalMemory.read(VarsStart+mindex+2), InternalMemory.read(VarsStart+mindex+3), InternalMemory.read(VarsStart+mindex+4), InternalMemory.read(VarsStart+mindex+5), InternalMemory.read(VarsStart+mindex+6), InternalMemory.read(VarsStart+mindex+7));
 #ifdef RA_STAR
 			ReefAngel.Network.CloudPublish(buffer);
 #endif
@@ -3358,7 +3363,12 @@ case MQTT_CALPH:
 			   ReefAngel.MainScreen();
             }	
 		break;			    
-	}    
+	}
+	case MQTT_FIRMWARECHECK:
+	{
+		ReefAngel.Network.ForceCheckFirmware();
+		break;
+	}
 #endif	
     
    }
