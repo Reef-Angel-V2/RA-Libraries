@@ -20,10 +20,11 @@
 #if defined(ARDUINO_ARCH_SAMD) || defined RA_STAR || defined CLOUD_WIFI
 
 #include <Ethernet.h>
-// Portal & Cloud Server
-const IPAddress PortalServer(191,101,233,157); // forum.reefangel.com
-static byte MQTTServer[] = {191,101,233,157}; // cloud.reefangel.com
-const IPAddress WebWizardServer(191,101,233,157); // webwizard.reefangel.com
+
+// Portal & Cloud Server - Using hostnames (DNS resolution handled automatically)
+#define PortalServerHost "forum.reefangel.com"
+#define MQTTServerHost "cloud.reefangel.com" 
+#define WebWizardServerHost "forum.reefangel.com"
 
 #define MQTTPORT 1883 // MQTT server port
 
