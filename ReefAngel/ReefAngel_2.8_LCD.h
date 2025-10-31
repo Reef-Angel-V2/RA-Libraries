@@ -1,3 +1,10 @@
+// Constants for calibration and UI
+#define CALIBRATION_SAMPLES 60
+#define CALIBRATION_DELAY_MS 50
+#define MAX_BUFFER_SIZE 16
+#define TOUCH_TIMEOUT_MS 200
+#define MAX_CHANNEL_VALUE 999
+
 void ReefAngelClass::ChangeOrientation()
 {
 	byte tempo = orientation;
@@ -100,7 +107,7 @@ void ReefAngelClass::ChangeDisplayedScreen(signed char index)
 {
 	WDTReset();
 	NeedsRedraw=true;
-	if (millis()-lastDisplayChange>200)
+	if (millis()-lastDisplayChange>TOUCH_TIMEOUT_MS)
 	{
 		lastDisplayChange=millis();
 		DisplayedScreen+=index;
@@ -422,8 +429,8 @@ void ReefAngelClass::SetupTouchCalibrateWL(byte channel)
 	CancelButton.SetPosition(twidth*3/4-60,theight*17/20);
 	CancelButton.Show();
 	TouchEnabled=true;
-	char buffer[7];
-	sprintf(buffer, "WL%dC:1", channel);
+	char buffer[16];  // Increased buffer size
+	snprintf(buffer, sizeof(buffer), "WL%dC:1", channel);
 	if (bitRead(ReefAngel.CEM,CloudWLBit)==1 && channel==0) ReefAngel.Network.CloudPublish(buffer);
 	if (bitRead(ReefAngel.CEM,CloudMultiWLBit)==1  && channel>0 && channel<5) ReefAngel.Network.CloudPublish(buffer);
 }
@@ -463,8 +470,8 @@ void ReefAngelClass::SetupTouchCalibrateCustom(byte index)
 	CancelButton.SetPosition(twidth*3/4-60,theight*17/20);
 	CancelButton.Show();
 	TouchEnabled=true;
-	char buffer[9];
-	sprintf(buffer, "CEXP%dC:1", index);
+	char buffer[16];  // Increased buffer size
+	snprintf(buffer, sizeof(buffer), "CEXP%dC:1", index);
 	ReefAngel.Network.CloudPublish(buffer);
 }
 
@@ -529,7 +536,7 @@ void ReefAngelClass::ShowTouchInterface()
 			// Screensaver timeout expired
 			TouchLCD.SetBacklight(0);
 			Sleeping=true;
-			DisplayedScreen==MAIN_SCREEN;
+			DisplayedScreen=MAIN_SCREEN;
 			NeedsRedraw=true;
 		}
 #ifdef CUSTOM_MAIN
@@ -751,8 +758,8 @@ void ReefAngelClass::ShowTouchInterface()
 			//				TouchLCD.Clear(COLOR_RED,twidth/6-27,y,twidth/6+27,y+25);
 			//				TouchLCD.Clear(COLOR_RED,twidth/2-27,y,twidth/2+27,y+25);
 			//				TouchLCD.Clear(COLOR_RED,twidth*5/6-27,y,twidth*5/6+27,y+25);
-			if (TS.IsTouchedInside(twidth/6-27,y,twidth/6+27,y+25))	{ if (--tme.Hour==255) tme.Hour=23; }
-			if (TS.IsTouchedInside(twidth/2-27,y,twidth/2+27,y+25)) { if (--tme.Minute==255) tme.Minute=59; }
+			if (TS.IsTouchedInside(twidth/6-27,y,twidth/6+27,y+25))	{ if (tme.Hour == 0) tme.Hour = 23; else tme.Hour--; }
+			if (TS.IsTouchedInside(twidth/2-27,y,twidth/2+27,y+25)) { if (tme.Minute == 0) tme.Minute = 59; else tme.Minute--; }
 			if (TS.IsTouchedInside(twidth*5/6-27,y,twidth*5/6+27,y+25)) { tme.Hour+=isPM(newnow)?-12:12; }
 			newnow=makeTime(tme);
 			menutimeout=now();
@@ -810,17 +817,17 @@ void ReefAngelClass::ShowTouchInterface()
 			if (t==0)
 			{
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
-				for (int a=0;a<60;a++)
+				for (int a=0;a<CALIBRATION_SAMPLES;a++)
 				{
 					p+=analogRead(PHPin);
-					delay(50);
+					delay(CALIBRATION_DELAY_MS);
 #if defined RA_TOUCH || defined RA_TOUCHDISPLAY || defined RA_STAR
 		wdt_reset();
 #elif defined(__SAM3X8E__)
 		WDT_Restart( WDT );
 #endif // defined RA_TOUCH || defined RA_TOUCHDISPLAY
 				}
-				p/=60;
+				p/=CALIBRATION_SAMPLES;
 				CalVal1=p;
 				CalStep++;
 			}
@@ -885,17 +892,17 @@ void ReefAngelClass::ShowTouchInterface()
 			if (t==0)
 			{
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
-				for (int a=0;a<60;a++)
+				for (int a=0;a<CALIBRATION_SAMPLES;a++)
 				{
 					p+=analogRead(PHPin);
-					delay(50);
+					delay(CALIBRATION_DELAY_MS);
 #if defined RA_TOUCH || defined RA_TOUCHDISPLAY || defined RA_STAR
 		wdt_reset();
 #elif defined(__SAM3X8E__)
 		WDT_Restart( WDT );
 #endif // defined RA_TOUCH || defined RA_TOUCHDISPLAY
 				}
-				p/=60;
+				p/=CALIBRATION_SAMPLES;
 				CalVal2=p;
 				CalStep++;
 			}
@@ -998,17 +1005,17 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
 				if (bitRead(ReefAngel.CEM,CloudSalinityBit)==0)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=Salinity.Read();
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 	#if defined RA_TOUCH || defined RA_TOUCHDISPLAY || defined RA_STAR
 						wdt_reset();
 	#elif defined(__SAM3X8E__)
 						WDT_Restart( WDT );
 	#endif // defined RA_TOUCH || defined RA_TOUCHDISPLAY
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal1=p;
 				}
 				else
@@ -1045,7 +1052,7 @@ void ReefAngelClass::ShowTouchInterface()
 				CalStep++;
 				TouchEnabled=false;
 					char buffer[16];
-					sprintf(buffer, "CALSAL:%d", CalVal1);
+					snprintf(buffer, sizeof(buffer), "CALSAL:%d", CalVal1);
 					ReefAngel.Network.CloudPublish(buffer);
 			}
 			break;
@@ -1063,7 +1070,7 @@ void ReefAngelClass::ShowTouchInterface()
 				if (bitRead(ReefAngel.CEM,CloudSalinityBit)==1)
 				{
 					char buffer[16];
-					sprintf(buffer, "SALC:2:%d", CalVal1);
+					snprintf(buffer, sizeof(buffer), "SALC:2:%d", CalVal1);
 					ReefAngel.Network.CloudPublish(buffer);
 				}
 
@@ -1119,17 +1126,17 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
 				if (bitRead(ReefAngel.CEM,CloudORPBit)==0)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=ORP.Read();
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 	#if defined RA_TOUCH || defined RA_TOUCHDISPLAY || defined RA_STAR
 			wdt_reset();
 	#elif defined(__SAM3X8E__)
 			WDT_Restart( WDT );
 	#endif // defined RA_TOUCH || defined RA_TOUCHDISPLAY
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal1=p;
 				}
 				else
@@ -1201,17 +1208,17 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
 				if (bitRead(ReefAngel.CEM,CloudORPBit)==0)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=ORP.Read();
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 	#if defined RA_TOUCH || defined RA_TOUCHDISPLAY || defined RA_STAR
 			wdt_reset();
 	#elif defined(__SAM3X8E__)
 			WDT_Restart( WDT );
 	#endif // defined RA_TOUCH || defined RA_TOUCHDISPLAY
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal2=p;
 				}
 				else
@@ -1271,9 +1278,9 @@ void ReefAngelClass::ShowTouchInterface()
 				if (bitRead(ReefAngel.CEM,CloudORPBit)==1)
 				{
 					char buffer[16];
-					sprintf(buffer, "ORPC:2:%d", CalVal1);
+					snprintf(buffer, sizeof(buffer), "ORPC:2:%d", CalVal1);
 					ReefAngel.Network.CloudPublish(buffer);
-					sprintf(buffer, "ORPC:3:%d", CalVal2);
+					snprintf(buffer, sizeof(buffer), "ORPC:3:%d", CalVal2);
 					ReefAngel.Network.CloudPublish(buffer);
 				}
 			}
@@ -1328,17 +1335,17 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
 				if (bitRead(ReefAngel.CEM,CloudPHExpBit)==0)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=PH.Read();
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 	#if defined RA_TOUCH || defined RA_TOUCHDISPLAY || defined RA_STAR
 			wdt_reset();
 	#elif defined(__SAM3X8E__)
 			WDT_Restart( WDT );
 	#endif // defined RA_TOUCH || defined RA_TOUCHDISPLAY
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal1=p;
 				}
 				else
@@ -1410,17 +1417,17 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
 				if (bitRead(ReefAngel.CEM,CloudPHExpBit)==0)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=PH.Read();
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 	#if defined RA_TOUCH || defined RA_TOUCHDISPLAY || defined RA_STAR
 			wdt_reset();
 	#elif defined(__SAM3X8E__)
 			WDT_Restart( WDT );
 	#endif // defined RA_TOUCH || defined RA_TOUCHDISPLAY
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal2=p;
 				}
 				else
@@ -1479,9 +1486,9 @@ void ReefAngelClass::ShowTouchInterface()
 				if (bitRead(ReefAngel.CEM,CloudPHExpBit)==1)
 				{
 					char buffer[16];
-					sprintf(buffer, "PHEC:2:%d", CalVal1);
+					snprintf(buffer, sizeof(buffer), "PHEC:2:%d", CalVal1);
 					ReefAngel.Network.CloudPublish(buffer);
-					sprintf(buffer, "PHEC:3:%d", CalVal2);
+					snprintf(buffer, sizeof(buffer), "PHEC:3:%d", CalVal2);
 					ReefAngel.Network.CloudPublish(buffer);
 				}
 			}
@@ -1513,8 +1520,8 @@ void ReefAngelClass::ShowTouchInterface()
 			if (CancelButton.IsPressed())
 			{
 				ShowTouchMenu(CALIBRATE_MENU_SCREEN);
-				char buffer[7];
-				sprintf(buffer, "WL%dC:0", channel);
+				char buffer[16];  // Increased buffer size
+				snprintf(buffer, sizeof(buffer), "WL%dC:0", channel);
 				ReefAngel.Network.CloudPublish(buffer);
 			}
 		}
@@ -1543,24 +1550,24 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
 				if (bitRead(ReefAngel.CEM,CloudWLBit)==0 && channel==0)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=WaterLevel.Read();
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 						WDTReset();
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal1=p;
 				}
 				else if (bitRead(ReefAngel.CEM,CloudMultiWLBit)==0 && channel>0 && channel<5)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=WaterLevel.Read(channel);
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 						WDTReset();
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal1=p;
 				}
 				else
@@ -1617,24 +1624,24 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI6);
 				if (bitRead(ReefAngel.CEM,CloudWLBit)==0 && channel==0)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=WaterLevel.Read();
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 						WDTReset();
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal2=p;
 				}
 				else if (bitRead(ReefAngel.CEM,CloudMultiWLBit)==0 && channel>0 && channel<5)
 				{
-					for (int a=0;a<60;a++)
+					for (int a=0;a<CALIBRATION_SAMPLES;a++)
 					{
 						p+=WaterLevel.Read(channel);
-						delay(50);
+						delay(CALIBRATION_DELAY_MS);
 						WDTReset();
 					}
-					p/=60;
+					p/=CALIBRATION_SAMPLES;
 					CalVal2=p;
 				}
 				else
@@ -1714,9 +1721,9 @@ void ReefAngelClass::ShowTouchInterface()
 				if ((bitRead(ReefAngel.CEM,CloudWLBit)==1 && channel==0) || (bitRead(ReefAngel.CEM,CloudMultiWLBit)==1 && channel>0 && channel<5))
 				{
 					char buffer[16];
-					sprintf(buffer, "WL%dC:2:%d", channel, CalVal1);
+					snprintf(buffer, sizeof(buffer), "WL%dC:2:%d", channel, CalVal1);
 					ReefAngel.Network.CloudPublish(buffer);
-					sprintf(buffer, "WL%dC:3:%d", channel, CalVal2);
+					snprintf(buffer, sizeof(buffer), "WL%dC:3:%d", channel, CalVal2);
 					ReefAngel.Network.CloudPublish(buffer);
 				}
 
@@ -1752,8 +1759,8 @@ void ReefAngelClass::ShowTouchInterface()
 			if (CancelButton.IsPressed())
 			{
 				ShowTouchMenu(CALIBRATE_MENU_SCREEN);
-				char buffer[9];
-				sprintf(buffer, "CEXP%dC:0", index);
+				char buffer[16];  // Increased buffer size
+				snprintf(buffer, sizeof(buffer), "CEXP%dC:0", index);
 				ReefAngel.Network.CloudPublish(buffer);
 			}
 		}
@@ -1887,9 +1894,9 @@ void ReefAngelClass::ShowTouchInterface()
 				Font.DrawCenterTextP(twidth/2,theight/2,PH_CALI14);
 				CalStep++;
 				char buffer[16];
-				sprintf(buffer, "CEXP%dC:2:%d", index, CalVal1);
+				snprintf(buffer, sizeof(buffer), "CEXP%dC:2:%d", index, CalVal1);
 				ReefAngel.Network.CloudPublish(buffer);
-				sprintf(buffer, "CEXP%dC:3:%d", index, CalVal2);
+				snprintf(buffer, sizeof(buffer), "CEXP%dC:3:%d", index, CalVal2);
 				ReefAngel.Network.CloudPublish(buffer);
 			}
 			break;
@@ -4108,11 +4115,11 @@ void SliderClass::DrawMarker()
 	ReefAngel.TouchLCD.Clear(COLOR_GRAY,currentX-1,y1+31,currentX+1,y1+60);
 	ReefAngel.TouchLCD.Clear(COLOR_RED,currentX,y1+32,currentX,y1+59);
 	ReefAngel.LargeFont.SetColor(textcolor,COLOR_WHITE,false);
-	char c[10];
-	char temp[10];
+	char c[12];  // Increased buffer size to prevent overflow
+	char temp[11];
 	itoa(current,temp,10);
 	strcpy(c," ");
-	strcat(c,temp);
+	strncat(c,temp, sizeof(c)-2);  // Safe concatenation with bounds checking
 	strcat(c," ");
 	ReefAngel.LargeFont.DrawCenterText(ReefAngel.TouchLCD.GetWidth()/2,y1,c);
 }
