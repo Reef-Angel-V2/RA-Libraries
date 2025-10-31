@@ -100,7 +100,9 @@ byte RA_Tilt::readRegister(byte addressToRead)
 	Wire.write(addressToRead);
 	Wire.endTransmission(false); //endTransmission but keep the connection active
 	Wire.requestFrom(I2CTilt, 1); //Ask for 1 byte, once done, bus is released by default
-	while(!Wire.available()) ; //Wait for the data to come back
+	int count = 0;
+	while(!Wire.available() && count++ < 100) ; //Wait for the data to come back with timeout
+	if (!Wire.available()) return 0xFF; //Return error if timeout
 	return Wire.read(); //Return this one byte
 }
 

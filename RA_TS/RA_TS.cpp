@@ -21,8 +21,11 @@
 
 #include "RA_TS.h"
 
+#define TOUCH_TIMEOUT_MS 5000
+
 RA_TS::RA_TS()
 {
+	X=Y=uX=uY=uZ1=uZ2=0;
 }
 
 void RA_TS::Init()
@@ -103,7 +106,7 @@ boolean RA_TS::GetTouch()
 		last_touch=millis();
 		// Serial.println("Touch");
 	}
-	if ((millis()-last_touch)>5000)
+	if ((millis()-last_touch)>TOUCH_TIMEOUT_MS)
 	{
 		// Serial.println("Reset Touch");
 		digitalWrite(i2cEnable1,HIGH);
@@ -124,14 +127,14 @@ boolean RA_TS::GetTouch()
 		return false;
 	}
 	
-	uint8_t i2cdat[16];
+	uint8_t i2cdat[32];
 	enableI2CChannel1();
 	Wire.beginTransmission(FT6206_ADDR);
 	Wire.write((byte)0);  
 	Wire.endTransmission();
 	Wire.beginTransmission(FT6206_ADDR);
 	Wire.requestFrom((byte)FT6206_ADDR, (byte)32);
-	for (uint8_t i=0; i<16; i++)
+	for (uint8_t i=0; i<32; i++)
 	i2cdat[i] = Wire.read();
 	Wire.endTransmission();  
 	disableI2CChannel1();

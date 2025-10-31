@@ -483,8 +483,8 @@ void RA_TouchLCD::DrawSDImage(char *bmp, int x, int y)
 				  }
 			  }
 		}
-		dataFile.close();
 	}
+	dataFile.close();
 }
 
 void RA_TouchLCD::DrawSDRawImage(char *bmp, int x, int y, int w, int h)
@@ -529,8 +529,8 @@ void RA_TouchLCD::DrawSDRawImage(char *bmp, int x, int y, int w, int h)
 			WR1;
 		}
 		CS1;
-		dataFile.close();
 	}
+	dataFile.close();
 }
 
 
