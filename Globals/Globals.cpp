@@ -1020,6 +1020,7 @@ int I2C_ClearBus() {
 
   boolean SCL_LOW = (digitalRead(SCL) == LOW); // Check is SCL is Low.
   if (SCL_LOW) { //If it is held low Arduno cannot become the I2C master. 
+    wdt_reset(); // Reset watchdog before returning error
     return 1; //I2C bus error. Could not clear SCL clock line held low
   }
 
@@ -1042,14 +1043,18 @@ int I2C_ClearBus() {
     while (SCL_LOW && (counter > 0)) {  //  loop waiting for SCL to become High only wait 2sec.
       counter--;
       delay(100);
+      wdt_reset(); // Reset watchdog during potentially long wait
       SCL_LOW = (digitalRead(SCL) == LOW);
     }
     if (SCL_LOW) { // still low after 2 sec error
+      wdt_reset(); // Reset watchdog before returning error
       return 2; // I2C bus error. Could not clear. SCL clock line held low by slave clock stretch for >2sec
     }
+    wdt_reset(); // Reset watchdog during clock recovery loop
     SDA_LOW = (digitalRead(SDA) == LOW); //   and check SDA input again and loop
   }
   if (SDA_LOW) { // still low
+    wdt_reset(); // Reset watchdog before returning error
     return 3; // I2C bus error. Could not clear. SDA data line held low
   }
 

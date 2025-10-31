@@ -1317,6 +1317,7 @@ typedef struct Compensation
 #define MQTT_CALCUS8 47
 #define MQTT_CO2 48
 #define MQTT_CO2HUM 49
+#define MQTT_FIRMWARECHECK 50
 
 
 // Cloud Expansion Bits ( CEM )
