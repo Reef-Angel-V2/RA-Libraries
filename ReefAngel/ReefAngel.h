@@ -423,6 +423,8 @@ int* ParamArrayInt[NumParamInt] = {
 #ifdef RA_STAR
     &CustomExpansionValue[0], &CustomExpansionValue[1], &CustomExpansionValue[2], &CustomExpansionValue[3],
     &CustomExpansionValue[4], &CustomExpansionValue[5], &CustomExpansionValue[6], &CustomExpansionValue[7]
+#else
+	&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt,&CloudDummyInt
 #endif
 };
 	byte OldParamArrayByte[NumParamByte];
