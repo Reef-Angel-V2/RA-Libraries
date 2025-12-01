@@ -8,13 +8,13 @@
 #define Port2Bit   1<<1
 #define Port1Bit   1<<0
 
-#define MAX_RELAY_EXPANSION_MODULES     8
+#define MAX_RELAY_EXPANSION_MODULES   8
 #define PWM_EXPANSION_CHANNELS     		6
-#define PWM16_EXPANSION_CHANNELS     		16
+#define PWM16_EXPANSION_CHANNELS     	16
 #define IO_EXPANSION_CHANNELS     		6
-#define WL_CHANNELS						5
-#define CUSTOM_EXP_MODULES				8
-#define TEMP_PROBES						2
+#define WL_CHANNELS						        5
+#define CUSTOM_EXP_MODULES				    8
+#define TEMP_PROBES						        2
 
 #define CUSTOM_NONE	0
 #define CUSTOM_SALINITY	1
@@ -25,6 +25,8 @@
 #define CUSTOM_MULTI_WL2	6
 #define CUSTOM_MULTI_WL3	7
 #define CUSTOM_MULTI_WL4	8
+#define CUSTOM_CO2	      9
+#define CUSTOM_CO2_HUM	  10
 
 typedef struct  {
   int Temp[TEMP_PROBES+1];
@@ -33,6 +35,8 @@ typedef struct  {
   int PHExp;
   int PAR;
   int Humidity;
+  int Co2;
+  int Co2hum;
   byte WL[WL_CHANNELS];
   byte Leak;
   byte IO;
@@ -59,6 +63,7 @@ typedef struct  {
 #define I2CWaterLevel		0X4f
 #define I2CEEPROM1          0x50
 #define I2CHumidity			0x5c
+#define I2CCo2          0x62
 
 #define VarsStart                 200
 #define Mem_I_SalMax			  VarsStart+47
@@ -134,12 +139,15 @@ static char pub_multiwl[16];
 static char pub_custom_wl[16];
 static char pub_custom_multiwl[16];
 static char pub_humidity[16];
+static char pub_co2[16];
+static char pub_co2hum[16];
 static boolean SalinityFound;
 static boolean ORPFound;
 static boolean PHExpFound;
 static boolean WLFound;
 static boolean MultiWLFound;
 static boolean HumidityFound;
+static boolean Co2Found;
 
 
 #if defined(ARDUINO_ARCH_SAMD)
