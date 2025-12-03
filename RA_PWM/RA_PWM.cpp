@@ -666,7 +666,7 @@ void RA_PWMClass::ChannelPWMSlope(byte Channel, byte Start, byte End, byte Durat
 
 void RA_PWMClass::ChannelPWMSlope(byte Channel, byte Start, byte End, byte Duration, int PreMinuteOffset, int PostMinuteOffset)
 {
-  	SetChannelRaw(Channel, Slope(Start,End,ExpansionChannel[Channel],Duration,PreMinuteOffset,PostMinuteOffset));	
+  	SetChannelRaw(Channel, Slope(Start,End,Duration,ExpansionChannel[Channel],PreMinuteOffset,PostMinuteOffset));	
 }
 
 void RA_PWMClass::Channel0PWMParabola()
@@ -676,27 +676,27 @@ void RA_PWMClass::Channel0PWMParabola()
 
 void RA_PWMClass::Channel1PWMParabola()
 {
-	Channel0PWMParabola(0);
+	Channel1PWMParabola(0);
 }
 
 void RA_PWMClass::Channel2PWMParabola()
 {
-	Channel0PWMParabola(0);
+	Channel2PWMParabola(0);
 }
 
 void RA_PWMClass::Channel3PWMParabola()
 {
-	Channel0PWMParabola(0);
+	Channel3PWMParabola(0);
 }
 
 void RA_PWMClass::Channel4PWMParabola()
 {
-	Channel0PWMParabola(0);
+	Channel4PWMParabola(0);
 }
 
 void RA_PWMClass::Channel5PWMParabola()
 {
-	Channel0PWMParabola(0);
+	Channel5PWMParabola(0);
 }
 
 void RA_PWMClass::Channel0PWMParabola(int MinuteOffset)
@@ -781,27 +781,27 @@ void RA_PWMClass::Channel0PWMSmoothRamp()
 
 void RA_PWMClass::Channel1PWMSmoothRamp()
 {
-	ChannelPWMSlope(1,InternalMemory.PWMSlopeStart1_read(),InternalMemory.PWMSlopeEnd1_read(),InternalMemory.PWMSlopeDuration1_read());
+	ChannelPWMSmoothRamp(1,InternalMemory.PWMSlopeStart1_read(),InternalMemory.PWMSlopeEnd1_read(),InternalMemory.PWMSlopeDuration1_read());
 }
 
 void RA_PWMClass::Channel2PWMSmoothRamp()
 {
-	ChannelPWMSlope(2,InternalMemory.PWMSlopeStart2_read(),InternalMemory.PWMSlopeEnd2_read(),InternalMemory.PWMSlopeDuration2_read());
+	ChannelPWMSmoothRamp(2,InternalMemory.PWMSlopeStart2_read(),InternalMemory.PWMSlopeEnd2_read(),InternalMemory.PWMSlopeDuration2_read());
 }
 
 void RA_PWMClass::Channel3PWMSmoothRamp()
 {
-	ChannelPWMSlope(3,InternalMemory.PWMSlopeStart3_read(),InternalMemory.PWMSlopeEnd3_read(),InternalMemory.PWMSlopeDuration3_read());
+	ChannelPWMSmoothRamp(3,InternalMemory.PWMSlopeStart3_read(),InternalMemory.PWMSlopeEnd3_read(),InternalMemory.PWMSlopeDuration3_read());
 }
 
 void RA_PWMClass::Channel4PWMSmoothRamp()
 {
-	ChannelPWMSlope(4,InternalMemory.PWMSlopeStart4_read(),InternalMemory.PWMSlopeEnd4_read(),InternalMemory.PWMSlopeDuration4_read());
+	ChannelPWMSmoothRamp(4,InternalMemory.PWMSlopeStart4_read(),InternalMemory.PWMSlopeEnd4_read(),InternalMemory.PWMSlopeDuration4_read());
 }
 
 void RA_PWMClass::Channel5PWMSmoothRamp()
 {
-	ChannelPWMSlope(5,InternalMemory.PWMSlopeStart5_read(),InternalMemory.PWMSlopeEnd5_read(),InternalMemory.PWMSlopeDuration5_read());
+	ChannelPWMSmoothRamp(5,InternalMemory.PWMSlopeStart5_read(),InternalMemory.PWMSlopeEnd5_read(),InternalMemory.PWMSlopeDuration5_read());
 }
 
 void RA_PWMClass::Channel0PWMSmoothRamp(int MinuteOffset)
@@ -836,32 +836,32 @@ void RA_PWMClass::Channel5PWMSmoothRamp(int MinuteOffset)
 
 void RA_PWMClass::Channel0PWMSmoothRamp(int PreMinuteOffset, int PostMinuteOffset)
 {
-	ChannelPWMSlope(0,InternalMemory.PWMSlopeStart0_read(),InternalMemory.PWMSlopeEnd0_read(),InternalMemory.PWMSlopeDuration0_read(), PreMinuteOffset, PostMinuteOffset);
+	ChannelPWMSmoothRamp(0,InternalMemory.PWMSlopeStart0_read(),InternalMemory.PWMSlopeEnd0_read(),InternalMemory.PWMSlopeDuration0_read(), PreMinuteOffset, PostMinuteOffset);
 }
 
 void RA_PWMClass::Channel1PWMSmoothRamp(int PreMinuteOffset, int PostMinuteOffset)
 {
-	ChannelPWMSlope(1,InternalMemory.PWMSlopeStart1_read(),InternalMemory.PWMSlopeEnd1_read(),InternalMemory.PWMSlopeDuration1_read(), PreMinuteOffset, PostMinuteOffset);
+	ChannelPWMSmoothRamp(1,InternalMemory.PWMSlopeStart1_read(),InternalMemory.PWMSlopeEnd1_read(),InternalMemory.PWMSlopeDuration1_read(), PreMinuteOffset, PostMinuteOffset);
 }
 
 void RA_PWMClass::Channel2PWMSmoothRamp(int PreMinuteOffset, int PostMinuteOffset)
 {
-	ChannelPWMSlope(2,InternalMemory.PWMSlopeStart2_read(),InternalMemory.PWMSlopeEnd2_read(),InternalMemory.PWMSlopeDuration2_read(), PreMinuteOffset, PostMinuteOffset);
+	ChannelPWMSmoothRamp(2,InternalMemory.PWMSlopeStart2_read(),InternalMemory.PWMSlopeEnd2_read(),InternalMemory.PWMSlopeDuration2_read(), PreMinuteOffset, PostMinuteOffset);
 }
 
 void RA_PWMClass::Channel3PWMSmoothRamp(int PreMinuteOffset, int PostMinuteOffset)
 {
-	ChannelPWMSlope(3,InternalMemory.PWMSlopeStart3_read(),InternalMemory.PWMSlopeEnd3_read(),InternalMemory.PWMSlopeDuration3_read(), PreMinuteOffset, PostMinuteOffset);
+	ChannelPWMSmoothRamp(3,InternalMemory.PWMSlopeStart3_read(),InternalMemory.PWMSlopeEnd3_read(),InternalMemory.PWMSlopeDuration3_read(), PreMinuteOffset, PostMinuteOffset);
 }
 
 void RA_PWMClass::Channel4PWMSmoothRamp(int PreMinuteOffset, int PostMinuteOffset)
 {
-	ChannelPWMSlope(4,InternalMemory.PWMSlopeStart4_read(),InternalMemory.PWMSlopeEnd4_read(),InternalMemory.PWMSlopeDuration4_read(), PreMinuteOffset, PostMinuteOffset);
+	ChannelPWMSmoothRamp(4,InternalMemory.PWMSlopeStart4_read(),InternalMemory.PWMSlopeEnd4_read(),InternalMemory.PWMSlopeDuration4_read(), PreMinuteOffset, PostMinuteOffset);
 }
 
 void RA_PWMClass::Channel5PWMSmoothRamp(int PreMinuteOffset, int PostMinuteOffset)
 {
-	ChannelPWMSlope(5,InternalMemory.PWMSlopeStart5_read(),InternalMemory.PWMSlopeEnd5_read(),InternalMemory.PWMSlopeDuration5_read(), PreMinuteOffset, PostMinuteOffset);
+	ChannelPWMSmoothRamp(5,InternalMemory.PWMSlopeStart5_read(),InternalMemory.PWMSlopeEnd5_read(),InternalMemory.PWMSlopeDuration5_read(), PreMinuteOffset, PostMinuteOffset);
 }
 
 
@@ -1101,7 +1101,7 @@ void RA_PWMClass::SIXTEENChannelPWMSlope(byte Channel, byte Start, byte End, byt
 
 void RA_PWMClass::SIXTEENChannelPWMSlope(byte Channel, byte Start, byte End, byte Duration, int PreMinuteOffset, int PostMinuteOffset)
 {
- 	Set16ChannelRaw(Channel, Slope(Start,End,ExpansionChannel[Channel],Duration,PreMinuteOffset,PostMinuteOffset));
+ 	Set16ChannelRaw(Channel, Slope(Start,End,Duration,SIXTEENChExpansionChannel[Channel],PreMinuteOffset,PostMinuteOffset));
 }
 
 void RA_PWMClass::SIXTEENChannelPWMParabola(byte Channel, byte Start, byte End)
@@ -1131,7 +1131,7 @@ void RA_PWMClass::SIXTEENChannelPWMSmoothRamp(byte Channel, byte Start, byte End
 
 void RA_PWMClass::SIXTEENChannelPWMSmoothRamp(byte Channel, byte Start, byte End, byte SlopeLength, int PreMinuteOffset, int PostMinuteOffset)
 {
-    Set16ChannelRaw(Channel, SmoothRamp(Start,End,ExpansionChannel[Channel],SlopeLength,PreMinuteOffset,PostMinuteOffset));
+    Set16ChannelRaw(Channel, SmoothRamp(Start,End,SlopeLength,SIXTEENChExpansionChannel[Channel],PreMinuteOffset,PostMinuteOffset));
 }
 
 void RA_PWMClass::SIXTEENChannelPWMSigmoid(byte Channel, byte Start, byte End)
@@ -1146,7 +1146,7 @@ void RA_PWMClass::SIXTEENChannelPWMSigmoid(byte Channel, byte Start, byte End, i
 
 void RA_PWMClass::SIXTEENChannelPWMSigmoid(byte Channel, byte Start, byte End, int PreMinuteOffset, int PostMinuteOffset)
 {
-    Set16ChannelRaw(Channel, Sigmoid(Start,End,ExpansionChannel[Channel],PreMinuteOffset,PostMinuteOffset));
+    Set16ChannelRaw(Channel, Sigmoid(Start,End,SIXTEENChExpansionChannel[Channel],PreMinuteOffset,PostMinuteOffset));
 }
 
 #endif //SIXTEENCHPWMEXPANSION
@@ -1154,22 +1154,22 @@ void RA_PWMClass::SIXTEENChannelPWMSigmoid(byte Channel, byte Start, byte End, i
 
 int RA_PWMClass::Parabola(byte Start, byte End, int PrevValue, int PreMinuteOffset, int PostMinuteOffset) 
 {
-	SetWaveForm(Parabola_Type,Start,End,0,PrevValue,PreMinuteOffset,PostMinuteOffset);
+	return SetWaveForm(Parabola_Type,Start,End,0,PrevValue,PreMinuteOffset,PostMinuteOffset);
 }
 
 int RA_PWMClass::Slope(byte Start, byte End, byte Duration, int PrevValue, int PreMinuteOffset, int PostMinuteOffset) 
 {
-	SetWaveForm(Slope_Type,Start,End,Duration,PrevValue,PreMinuteOffset,PostMinuteOffset);
+	return SetWaveForm(Slope_Type,Start,End,Duration,PrevValue,PreMinuteOffset,PostMinuteOffset);
 }
 
 int RA_PWMClass::SmoothRamp(byte Start, byte End, byte Duration, int PrevValue, int PreMinuteOffset, int PostMinuteOffset) 
 {
-	SetWaveForm(SmoothRamp_Type,Start,End,Duration,PrevValue,PreMinuteOffset,PostMinuteOffset);
+	return SetWaveForm(SmoothRamp_Type,Start,End,Duration,PrevValue,PreMinuteOffset,PostMinuteOffset);
 }
 
 int RA_PWMClass::Sigmoid(byte Start, byte End, int PrevValue, int PreMinuteOffset, int PostMinuteOffset) 
 {
-	SetWaveForm(Sigmoid_Type,Start,End,0,PrevValue,PreMinuteOffset,PostMinuteOffset);
+	return SetWaveForm(Sigmoid_Type,Start,End,0,PrevValue,PreMinuteOffset,PostMinuteOffset);
 }
 
 int RA_PWMClass::SetWaveForm(byte type, byte Start, byte End, byte Duration, int PrevValue, int PreMinuteOffset, int PostMinuteOffset)
